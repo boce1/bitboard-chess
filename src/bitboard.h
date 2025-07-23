@@ -2,17 +2,19 @@
 #define BITBOARD_H
 
 #include <stdio.h>
+#include <stdint.h>
+#include "magic_numbers.h"
 
-#define uint_64 unsigned long long
+// #define uint_64 unsigned long long
 
 #define get_bit(bitboard, square) ((bitboard) & (1ULL << (square)))
 #define set_bit(bitboard, square) ((bitboard) |= (1ULL << (square)))
 #define pop_bit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
 
-int count_bits(uint_64 bitboard);
-int get_least_significant_bit(uint_64 bitboard);
+int count_bits(uint64_t bitboard);
+int get_least_significant_bit_index(uint64_t bitboard);
 
-void print_bitboard(uint_64 bitboard);
+void print_bitboard(uint64_t bitboard);
 
 typedef enum {
     a8, b8, c8, d8, e8, f8, g8, h8, 
@@ -34,11 +36,13 @@ typedef enum {
 } rook_bishop;
 
 extern const char* square_to_cordinates[64];
+extern const int bishop_relevant_bits[64];
+extern const int rook_relevant_bits[64];
 
-const uint_64 not_a_file; // bitboard where bits on 'a' file are 0
-const uint_64 not_h_file; // bitboard where bits on 'h' file are 0
-const uint_64 not_hg_file;
-const uint_64 not_ab_file;
+const uint64_t not_a_file; // bitboard where bits on 'a' file are 0
+const uint64_t not_h_file; // bitboard where bits on 'h' file are 0
+const uint64_t not_hg_file;
+const uint64_t not_ab_file;
 
 /*
     rook and bishop attack masks are the mask for blocker bitboards. they produce occupancy board that produce magic number
@@ -50,27 +54,35 @@ const uint_64 not_ab_file;
     magic number + blocker bitboards = attack masks
 */
 typedef struct {
-    uint_64 pawn[2][64]; // 
-    uint_64 knight[64];
-    uint_64 bishop[64];
-    uint_64 rook[64];
-    uint_64 king[64];
-} attack_masks;
+    uint64_t pawn[2][64]; // white, black
+    uint64_t knight[64];
+    uint64_t bishop[64]; // occupancy rays
+    uint64_t rook[64]; // occupancy rays
+    uint64_t king[64];
+} leaper_attack_masks;
 
 typedef struct {
-    uint_64 rook[64][4096]; // 4096 is the maximum number of rook moves from a square
-    uint_64 bishop[64][512]; // 512 is the maximum number of bishop moves from a square
-} rook_bishop_occupancies;
+    uint64_t rook[64][4096]; // 4096 is the maximum number of rook moves from a square
+    uint64_t bishop[64][512]; // 512 is the maximum number of bishop moves from a square
+} slider_attack_masks;
 
-attack_masks* create_attack_masks();
+leaper_attack_masks* create_leaper_attack_masks();
 
-void init_pawn_attack_masks(attack_masks* masks);
-void init_king_attack_masks(attack_masks* masks);
-void init_knight_attack_masks(attack_masks* masks);
+void init_pawn_leaper_attack_masks(leaper_attack_masks* masks);
+void init_king_leaper_attack_masks(leaper_attack_masks* masks);
+void init_knight_leaper_attack_masks(leaper_attack_masks* masks);
 
-void init_rook_occupancy_rays_masks(attack_masks* masks);
-void init_bishop_occupancy_rays_masks(attack_masks* masks);
+void init_rook_occupancy_rays_masks(leaper_attack_masks* masks);
+void init_bishop_occupancy_rays_masks(leaper_attack_masks* masks);
 
-void init_attack_masks(attack_masks* masks);
+void init_leaper_attack_masks(leaper_attack_masks* masks);
+
+uint64_t get_occupancy_permutation(int index, int bits, uint64_t mask);
+slider_attack_masks* create_rook_bishop_occupancy_masks();
+
+uint64_t bishop_attacks_on_the_fly(int square, uint64_t block);
+uint64_t rook_attacks_on_the_fly(int square, uint64_t block);
+// to change
+void init_slider_attack_masks(slider_attack_masks* occupancies, leaper_attack_masks* masks);
 
 #endif // BITBOARD_H
