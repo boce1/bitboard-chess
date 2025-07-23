@@ -92,8 +92,6 @@ leaper_attack_masks* create_leaper_attack_masks() {
     for (i = 0; i < 64; i++) {
         masks->king[i] = 0ULL;
         masks->knight[i] = 0ULL;
-        masks->bishop[i] = 0ULL;
-        masks->rook[i] = 0ULL; 
     }
     
     return masks;
@@ -167,7 +165,7 @@ void init_knight_leaper_attack_masks(leaper_attack_masks* masks) {
     }
 }
 
-void init_rook_occupancy_rays_masks(leaper_attack_masks* masks){
+void init_rook_occupancy_rays_masks(slider_attack_masks* masks){
     // Initialize all masks that can represent possitions for blocker pieces
     for (int square = 0; square < 64; square++) {
         uint64_t mask = 0ULL;
@@ -187,11 +185,11 @@ void init_rook_occupancy_rays_masks(leaper_attack_masks* masks){
         for (int f = file - 1; f >= 1; f--)
             mask |= (1ULL << (rank * 8 + f));
 
-        masks->rook[square] = mask;
+        masks->rook_occupancy_rays[square] = mask;
     }
 }
 
-void init_bishop_occupancy_rays_masks(leaper_attack_masks* masks) {
+void init_bishop_occupancy_rays_masks(slider_attack_masks* masks) {
     for(int square = 0; square < 64; square++) {
         uint64_t mask = 0ULL;
         int rank = square / 8;
@@ -210,7 +208,7 @@ void init_bishop_occupancy_rays_masks(leaper_attack_masks* masks) {
         for(int r = rank - 1, f = file - 1; r >= 1 && f >= 1; r--, f--)
             mask |= (1ULL << (r * 8 + f));
 
-        masks->bishop[square] = mask;
+        masks->bishop_occupancy_rays[square] = mask;
     }
 }
 
@@ -218,8 +216,6 @@ void init_leaper_attack_masks(leaper_attack_masks* masks) {
     init_pawn_leaper_attack_masks(masks);
     init_king_leaper_attack_masks(masks);
     init_knight_leaper_attack_masks(masks);
-    init_rook_occupancy_rays_masks(masks);
-    init_bishop_occupancy_rays_masks(masks);
 }
 
 
@@ -238,24 +234,26 @@ uint64_t get_occupancy_permutation(int index, int bits, uint64_t mask) { // for 
     return occupancy;
 }
 
-slider_attack_masks* create_rook_bishop_occupancy_masks() {
-    slider_attack_masks* occupancies = malloc(sizeof(slider_attack_masks));
-    if (!occupancies) {
+slider_attack_masks* create_slider_attack_masks() {
+    slider_attack_masks* masks = malloc(sizeof(slider_attack_masks));
+    if (!masks) {
         fprintf(stderr, "Memory allocation failed for slider_attack_masks\n");
         exit(EXIT_FAILURE);
     }
     int square, permutation;
     for (square = 0; square < 64; square++) {
         for (permutation = 0; permutation < 4096; permutation++) {
-            occupancies->rook[square][permutation] = 0ULL;
+            masks->rook[square][permutation] = 0ULL;
         }
 
         for (permutation = 0; permutation < 512; permutation++) {
-            occupancies->bishop[square][permutation] = 0ULL;
+            masks->bishop[square][permutation] = 0ULL;
         }
+        masks->bishop_occupancy_rays[square] = 0ULL;
+        masks->rook_occupancy_rays[square] = 0ULL; 
     }
     
-    return occupancies;
+    return masks;
 }
 
 uint64_t bishop_attacks_on_the_fly(int square, uint64_t block) {
@@ -326,27 +324,39 @@ uint64_t rook_attacks_on_the_fly(int square, uint64_t block) {
     return attacks;
 }
 
-void init_slider_attack_masks(slider_attack_masks* slider_mask, leaper_attack_masks* leaper_masks) {
-    uint64_t occupancy;
-    int square, bits;
+void init_rook_slider_attack_masks(slider_attack_masks* slider_mask) {
+    uint64_t occupancy, magic_number;
+    int square, bits, magic_index;
 
     for (square = 0; square < 64; square++) {
         bits = rook_relevant_bits[square];
         for (int index_rook = 0; index_rook < (1 << bits); index_rook++) {
-            occupancy = get_occupancy_permutation(index_rook, bits, leaper_masks->rook[square]);
-            uint64_t magic_number = rook_magic_numbers[square];
-            int magic_index = (occupancy * magic_number) >> (64 - bits);
-            // printf("%d\n", magic_index);
+            occupancy = get_occupancy_permutation(index_rook, bits, slider_mask->rook_occupancy_rays[square]);
+            magic_number = rook_magic_numbers[square];
+            magic_index = (int)((occupancy * magic_number) >> (64 - bits));
             slider_mask->rook[square][magic_index] = rook_attacks_on_the_fly(square, occupancy); 
         }
+    }
+}
 
+void init_bishop_slider_attack_masks(slider_attack_masks* slider_mask) {
+    uint64_t occupancy, magic_number;
+    int square, bits, magic_index;
+
+    for (square = 0; square < 64; square++) {
         bits = bishop_relevant_bits[square];
         for (int index_bishop = 0; index_bishop < (1 << bits); index_bishop++) {
-            occupancy = get_occupancy_permutation(index_bishop, bits, leaper_masks->bishop[square]);
-            uint64_t magic_number = rook_magic_numbers[square];
-            int magic_index = (occupancy * magic_number) >> (64 - bits);
-            // print_bitboard(bishop_attacks_on_the_fly(square, occupancy));
-            slider_mask->bishop[square][magic_index] = bishop_attacks_on_the_fly(square, occupancy);
+            occupancy = get_occupancy_permutation(index_bishop, bits, slider_mask->bishop_occupancy_rays[square]);
+            magic_number = bishop_magic_numbers[square];
+            magic_index = (int)((occupancy * magic_number) >> (64 - bits));
+            slider_mask->bishop[square][magic_index] = bishop_attacks_on_the_fly(square, occupancy); 
         }
     }
+}
+
+void init_slider_attack_masks(slider_attack_masks* slider_mask) {
+    init_rook_occupancy_rays_masks(slider_mask);
+    init_bishop_occupancy_rays_masks(slider_mask);
+    init_rook_slider_attack_masks(slider_mask);
+    init_bishop_slider_attack_masks(slider_mask);
 }

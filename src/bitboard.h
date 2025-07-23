@@ -56,14 +56,14 @@ const uint64_t not_ab_file;
 typedef struct {
     uint64_t pawn[2][64]; // white, black
     uint64_t knight[64];
-    uint64_t bishop[64]; // occupancy rays
-    uint64_t rook[64]; // occupancy rays
     uint64_t king[64];
 } leaper_attack_masks;
 
 typedef struct {
     uint64_t rook[64][4096]; // 4096 is the maximum number of rook moves from a square
     uint64_t bishop[64][512]; // 512 is the maximum number of bishop moves from a square
+    uint64_t bishop_occupancy_rays[64]; // occupancy rays
+    uint64_t rook_occupancy_rays[64]; // occupancy rays
 } slider_attack_masks;
 
 leaper_attack_masks* create_leaper_attack_masks();
@@ -71,18 +71,19 @@ leaper_attack_masks* create_leaper_attack_masks();
 void init_pawn_leaper_attack_masks(leaper_attack_masks* masks);
 void init_king_leaper_attack_masks(leaper_attack_masks* masks);
 void init_knight_leaper_attack_masks(leaper_attack_masks* masks);
-
-void init_rook_occupancy_rays_masks(leaper_attack_masks* masks);
-void init_bishop_occupancy_rays_masks(leaper_attack_masks* masks);
-
 void init_leaper_attack_masks(leaper_attack_masks* masks);
 
 uint64_t get_occupancy_permutation(int index, int bits, uint64_t mask);
-slider_attack_masks* create_rook_bishop_occupancy_masks();
+slider_attack_masks* create_slider_attack_masks();
 
 uint64_t bishop_attacks_on_the_fly(int square, uint64_t block);
 uint64_t rook_attacks_on_the_fly(int square, uint64_t block);
-// to change
-void init_slider_attack_masks(slider_attack_masks* occupancies, leaper_attack_masks* masks);
+
+void init_rook_occupancy_rays_masks(slider_attack_masks* masks);
+void init_bishop_occupancy_rays_masks(slider_attack_masks* masks);
+void init_rook_slider_attack_masks(slider_attack_masks* slider_mask);
+void init_bishop_slider_attack_masks(slider_attack_masks* slider_mask);
+
+void init_slider_attack_masks(slider_attack_masks* masks);
 
 #endif // BITBOARD_H
