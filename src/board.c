@@ -55,3 +55,73 @@ void print_board(Board* board) {
                                         board->castling_rights & bk ? 'k' : '-', 
                                         board->castling_rights & bq ? 'q' : '-');
 }
+
+
+void parse_fen(char *fen, Board* board) {
+    memset(board->pieces, 0ULL, sizeof(board->pieces));
+    memset(board->occupancies, 0ULL, sizeof(board->occupancies));
+    board->side_to_move = 0;
+    board->en_passant_square = no_square;
+    board->castling_rights = 0;
+
+    for(int rank=0; rank<8; rank++) {
+        for(int file=0; file<8; file++) {
+            int square = rank * 8 + file;
+
+            if((*fen >= 'a' && *fen <= 'z') || (*fen >= 'A' && *fen <= 'Z')) {
+                int piece = char_to_piece[(unsigned char)*fen];
+
+                set_bit(board->pieces[piece], square);
+                fen++;
+            }
+            if(*fen >= '0' && *fen <= '9') {
+                int offset = *fen - '0';
+
+                int piece = -1;
+                for(int bb_piece=P; bb_piece <= k; bb_piece++) {
+                    if(get_bit(board->pieces[bb_piece], square))
+                        piece = bb_piece;
+                }
+                if(piece == -1) {
+                    file--;
+                }
+                file += offset;
+                fen++;
+            }
+            if(*fen == '/') fen++;
+        } 
+    }
+    fen++;
+    (*fen == 'w') ? (board->side_to_move = white) : (board->side_to_move = black);
+    fen += 2;
+    while(*fen != ' ') {
+        switch(*fen) {
+            case 'K': board->castling_rights |= wk; break;
+            case 'Q': board->castling_rights |= wq; break;
+            case 'k': board->castling_rights |= bk; break;
+            case 'q': board->castling_rights |= bq; break;
+            case '-': break;
+        }
+        fen++;
+    }
+    fen++;
+    if(*fen != '-') {
+        int file = fen[0] - 'a';
+        int rank = 8 - (fen[1] - '0');
+        board->en_passant_square = 8 * rank + file;
+    } else {
+        board->en_passant_square = no_square;
+    }
+    
+    // white pieces bitboards
+    for(int piece = P; piece<= K; piece++) {
+        board->occupancies[white] |= board->pieces[piece];
+    }
+    // black pieces bitboards
+    for(int piece = p; piece<= k; piece++) {
+        board->occupancies[black] |= board->pieces[piece];
+    }
+
+    board->occupancies[both] |= board->occupancies[white];
+    board->occupancies[both] |= board->occupancies[black];
+}
