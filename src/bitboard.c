@@ -131,6 +131,7 @@ void init_king_leaper_attack_masks(leaper_attack_masks* masks) {
     for(int rank = 0; rank < 8; rank++) {
         for(int file = 0; file < 8; file++) {
             square = rank * 8 + file;
+            king_pos = 0ULL;
             set_bit(king_pos, square); 
             
             masks->king[square] |= (king_pos >> 8); // up
@@ -151,6 +152,7 @@ void init_knight_leaper_attack_masks(leaper_attack_masks* masks) {
     for(int rank = 0; rank < 8; rank++) {
         for(int file = 0; file < 8; file++) {
             square = rank * 8 + file;
+            knight_pos = 0ULL;
             set_bit(knight_pos, square);
 
             masks->knight[square] |= ((knight_pos >> 10) & not_hg_file); 

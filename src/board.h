@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include "bitboard.h"
+#include "attack.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -41,5 +42,7 @@ extern const int char_to_piece[128]; // maps ASCII characters to piece types
 Board* create_board();
 void print_board(Board* board);
 void parse_fen(char *fen, Board* board);
+int is_square_attacked(int square, Board* board, leaper_attack_masks* leaper_masks, slider_attack_masks* slider_masks);
+void print_attacked_squares(Board* board, leaper_attack_masks* leaper_masks, slider_attack_masks* slider_masks);
 
 #endif // BOARD_H
