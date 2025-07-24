@@ -35,7 +35,7 @@ typedef enum {
     rook, bishop
 } rook_bishop;
 
-extern const char* square_to_cordinates[64];
+extern const char* square_to_cordinates[65];
 extern const int bishop_relevant_bits[64];
 extern const int rook_relevant_bits[64];
 
