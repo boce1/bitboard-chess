@@ -171,7 +171,7 @@ uint64_t generate_magic_number() {
     return get_random_uint64_t() & get_random_uint64_t() & get_random_uint64_t();
 }
 
-uint64_t find_magic_number(int square, int relevant_bits, int piece_type, leaper_attack_masks* masks) {
+uint64_t find_magic_number(int square, int relevant_bits, int piece_type, leaper_moves_masks* masks) {
     uint64_t occupancies[4096];
     uint64_t attacks[4096];
     uint64_t used_attacks[4096];
@@ -208,7 +208,7 @@ uint64_t find_magic_number(int square, int relevant_bits, int piece_type, leaper
     return 0ULL;
 }
 
-void print_magic_numbers(int piece_type, leaper_attack_masks* masks) {
+void print_magic_numbers(int piece_type, leaper_moves_masks* masks) {
     for(int square = 0; square < 64; square++) {
         int relevant_bits = (piece_type == rook) ? rook_relevant_bits[square] : bishop_relevant_bits[square];
         uint64_t magic_number = find_magic_number(square, relevant_bits, piece_type, masks);

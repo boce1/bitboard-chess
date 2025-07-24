@@ -126,7 +126,7 @@ void parse_fen(char *fen, Board* board) {
     board->occupancies[both] |= board->occupancies[black];
 }
 
-int is_square_attacked(int square, Board* board, leaper_attack_masks* leaper_masks, slider_attack_masks* slider_masks) {
+int is_square_attacked(int square, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     // returns if the square is attacked by any piece of the given side in Board argument
     // pawns
     if((board->side_to_move == white) && (get_pawn_attacks(leaper_masks, square, black) & board->pieces[P])) return 1;
@@ -149,7 +149,7 @@ int is_square_attacked(int square, Board* board, leaper_attack_masks* leaper_mas
     return 0;
 }
 
-void print_attacked_squares(Board* board, leaper_attack_masks* leaper_masks, slider_attack_masks* slider_masks) {
+void print_attacked_squares(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     int square;
     for(int rank = 0; rank < 8; rank++) {
         for(int file = 0; file < 8; file++) {
