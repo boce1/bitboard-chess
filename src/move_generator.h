@@ -12,4 +12,6 @@ void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves
 void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece);
 void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece);
 
+void genenrate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece);
+
 #endif // MOVE_GENERATOR_H

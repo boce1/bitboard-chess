@@ -59,7 +59,7 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, slider_
                 pop_bit(bitboard, source_square);
             }   
         }
-    } else { // generate black pawn and black king castiling moves
+    } else { // generate black pawn
         if(piece == p) {
             while(bitboard) {
                 source_square = get_least_significant_bit_index(bitboard);
@@ -161,11 +161,42 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
     }
 }
 
+void genenrate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece) {
+    int source_square, target_square;
+    uint64_t bitboard, attacks;
+
+    int opp_side = (board->side_to_move == white) ? black : white;
+
+    bitboard = board->pieces[piece];
+    if((board->side_to_move == white && piece == N) || (board->side_to_move == black && piece == n)) {
+        while(bitboard) {
+            source_square = get_least_significant_bit_index(bitboard);
+            attacks = get_knight_attacks(leaper_masks, source_square) & ~board->occupancies[board->side_to_move]; // get knight attacks by remove capturing own pieces
+
+            while(attacks) {
+                target_square = get_least_significant_bit_index(attacks);
+                
+                // quite moves
+                if(!get_bit(board->occupancies[opp_side], target_square)) {
+                    printf("knight move: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                } else { // capture moves
+                    printf("knight capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                }
+                
+                pop_bit(attacks, target_square);
+            }
+
+            pop_bit(bitboard, source_square);
+        }
+    }
+    
+}
+
 void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     for(int piece = P; piece <= k; piece++) {
         generate_pawn_moves(board, leaper_masks, slider_masks, piece); // generate only when pawn
         generate_king_castle(board, leaper_masks, slider_masks, piece); // generate only when king
-        
+        genenrate_knight_moves(board, leaper_masks, slider_masks, piece); // generate only when knight
 
         // generate moves for knignt, bishop, rook, queen and king
 
