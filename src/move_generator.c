@@ -217,13 +217,7 @@ void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int p
         }
     }
 }
-/*
-rook quite: a1b1
-rook quite: a1c1
-rook quite: a1d1
-rook quite: h1f1
-rook quite: h1g1
-*/
+
 void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
@@ -254,6 +248,67 @@ void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int pie
     }
 }
 
+void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
+    int source_square, target_square;
+    uint64_t bitboard, attacks;
+
+    int opp_side = (board->side_to_move == white) ? black : white;
+
+    bitboard = board->pieces[piece];
+    if((board->side_to_move == white && piece == Q) || (board->side_to_move == black && piece == q)) {
+        while(bitboard) {
+            source_square = get_least_significant_bit_index(bitboard);
+            attacks = get_queen_attacks(slider_masks, source_square, board->occupancies[both]) & ~board->occupancies[board->side_to_move]; // get queen attacks by remove capturing own pieces
+
+            while(attacks) {
+                target_square = get_least_significant_bit_index(attacks);
+                
+                // quite moves
+                if(!get_bit(board->occupancies[opp_side], target_square)) {
+                    printf("queen quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                } else { // capture moves
+                    printf("queen capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                }
+                
+                pop_bit(attacks, target_square);
+            }
+
+            pop_bit(bitboard, source_square);
+        }
+    }
+}
+
+void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int piece) {
+    int source_square, target_square;
+    uint64_t bitboard, attacks;
+
+    int opp_side = (board->side_to_move == white) ? black : white;
+
+    bitboard = board->pieces[piece];
+    if((board->side_to_move == white && piece == K) || (board->side_to_move == black && piece == k)) {
+        while(bitboard) {
+            source_square = get_least_significant_bit_index(bitboard);
+            attacks = get_king_attacks(leaper_masks, source_square) & ~board->occupancies[board->side_to_move]; // get king attacks by remove capturing own pieces
+
+            while(attacks) {
+                target_square = get_least_significant_bit_index(attacks);
+                
+                // quite moves
+                if(!get_bit(board->occupancies[opp_side], target_square)) {
+                    printf("king quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                } else { // capture moves
+                    printf("king capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                }
+                
+                pop_bit(attacks, target_square);
+            }
+
+            pop_bit(bitboard, source_square);
+        }
+    }
+}
+
+
 void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     for(int piece = P; piece <= k; piece++) {
         generate_pawn_moves(board, leaper_masks, piece); // generate only when pawn
@@ -261,7 +316,7 @@ void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves
         generate_knight_moves(board, leaper_masks, piece); // generate only when knight
         generate_bishop_moves(board, slider_masks, piece); // generate only when bishop
         generate_rook_moves(board, slider_masks, piece); // generate only when rook
-        // generate moves for knignt, bishop, rook, queen and king
-
+        generate_queen_moves(board, slider_masks, piece); // generate only when queen
+        generate_king_moves(board, leaper_masks, piece); // generate only when king
     }
 }
