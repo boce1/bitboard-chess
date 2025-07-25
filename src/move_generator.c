@@ -122,7 +122,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
         if(piece == K) {
             if(board->castling_rights & wk) {
                 if(!get_bit(board->occupancies[both], f1) && !get_bit(board->occupancies[both], g1)) { // check if f1 and g1 are empty
-                    if(!is_square_attacked(e1, board, leaper_masks, slider_masks) && !is_square_attacked(f1, board, leaper_masks, slider_masks) && !is_square_attacked(g1, board, leaper_masks, slider_masks)) {
+                    if(!is_square_attacked(e1, board, leaper_masks, slider_masks) && !is_square_attacked(f1, board, leaper_masks, slider_masks)) { // g1 is checked in make move function 
                         printf("white king castle: e1g1\n");
                     }
                 }
@@ -130,7 +130,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
 
             if(board->castling_rights & wq) {   
                 if(!get_bit(board->occupancies[both], d1) && !get_bit(board->occupancies[both], c1) && !get_bit(board->occupancies[both], b1)) { // check if d1, c1 and b1 are empty
-                    if(!is_square_attacked(e1, board, leaper_masks, slider_masks) && !is_square_attacked(d1, board, leaper_masks, slider_masks) && !is_square_attacked(c1, board, leaper_masks, slider_masks)) {
+                    if(!is_square_attacked(e1, board, leaper_masks, slider_masks) && !is_square_attacked(d1, board, leaper_masks, slider_masks)) { // c1 is checked in king leagal moves
                         printf("white king castle: e1c1\n");
                     }
                 }
@@ -140,7 +140,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
         if(piece == k) {
             if(board->castling_rights & bk) {
                 if(!get_bit(board->occupancies[both], f8) && !get_bit(board->occupancies[both], g8)) { // check if f8 and g8 are empty
-                    if(!is_square_attacked(e8, board, leaper_masks, slider_masks) && !is_square_attacked(f8, board, leaper_masks, slider_masks) && !is_square_attacked(g8, board, leaper_masks, slider_masks)) {
+                    if(!is_square_attacked(e8, board, leaper_masks, slider_masks) && !is_square_attacked(f8, board, leaper_masks, slider_masks)) { // g8 is checked in make move function
                         printf("black king castle: e8g8\n");
                     }
                 }
@@ -148,7 +148,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
 
             if (board->castling_rights & bq) {   
                 if(!get_bit(board->occupancies[both], d8) && !get_bit(board->occupancies[both], c8) && !get_bit(board->occupancies[both], b8)) { // check if d8, c8 and b8 are empty
-                    if(!is_square_attacked(e8, board, leaper_masks, slider_masks) && !is_square_attacked(d8, board, leaper_masks, slider_masks) && !is_square_attacked(c8, board, leaper_masks, slider_masks)) {
+                    if(!is_square_attacked(e8, board, leaper_masks, slider_masks) && !is_square_attacked(d8, board, leaper_masks, slider_masks)) { // c8 is checked in king leagal moves
                         printf("black king castle: e8c8\n");
                     }
                 }
