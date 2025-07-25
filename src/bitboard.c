@@ -86,8 +86,6 @@ leaper_moves_masks* create_leaper_moves_masks() {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 64; j++) {
             masks->pawn_attacks[i][j] = 0ULL;
-            masks->pawn_one_step[i][j] = 0ULL;
-            masks->pawn_two_step[i][j] = 0ULL;
         }
     }
 
@@ -123,42 +121,6 @@ void init_pawn_leaper_moves_masks(leaper_moves_masks* masks) {
             left_attack <<= 7;
             masks->pawn_attacks[black][square] |= right_attack & not_a_file;
             masks->pawn_attacks[black][square] |= left_attack & not_h_file;
-        }
-    }
-}
-
-void init_pawn_leaper_one_step_masks(leaper_moves_masks* masks) {
-    uint64_t bitboard;
-    int square;
-    for(int rank = 0; rank < 8; rank++) {
-        for(int file = 0; file < 8; file++) {
-            square = rank * 8 + file;
-            bitboard = 0ULL;
-            set_bit(bitboard, square);
-            masks->pawn_one_step[white][square] = bitboard >> 8; // up for white
-            masks->pawn_one_step[black][square] = bitboard << 8; // down for black
-        }
-    }
-}
-
-void init_pawn_leaper_two_step_masks(leaper_moves_masks* masks) {
-    uint64_t bitboard;
-    int square;
-    for(int rank = 0; rank < 8; rank++) {
-        for(int file = 0; file < 8; file++) {
-            square = rank * 8 + file;
-            bitboard = 0ULL;
-            set_bit(bitboard, square);
-            if(square >= a2 && square <= h2) {
-                masks->pawn_two_step[white][square] = bitboard >> 16; // up for white
-            } else {
-                masks->pawn_two_step[white][square] = 0ULL;
-            }
-            if(square >= a7 && square <= h7) {
-                masks->pawn_two_step[black][square] = bitboard << 16; // down for black
-            } else {
-                masks->pawn_two_step[black][square] = 0ULL;
-            }
         }
     }
 }
@@ -230,8 +192,6 @@ void init_bishop_occupancy_rays_masks(slider_moves_masks* masks) {
 
 void init_leaper_moves_masks(leaper_moves_masks* masks) {
     init_pawn_leaper_moves_masks(masks);
-    init_pawn_leaper_one_step_masks(masks);
-    init_pawn_leaper_two_step_masks(masks);
     init_king_leaper_moves_masks(masks);
     init_knight_leaper_moves_masks(masks);
 }

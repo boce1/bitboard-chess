@@ -57,8 +57,6 @@ typedef struct {
     uint64_t pawn_attacks[2][64]; // white, black
     uint64_t knight[64];
     uint64_t king[64];
-    uint64_t pawn_one_step[2][64];
-    uint64_t pawn_two_step[2][64];
 } leaper_moves_masks;
 
 typedef struct {
@@ -71,8 +69,6 @@ typedef struct {
 leaper_moves_masks* create_leaper_moves_masks();
 
 void init_pawn_leaper_moves_masks(leaper_moves_masks* masks);
-void init_pawn_leaper_one_step_masks(leaper_moves_masks* masks);
-void init_pawn_leaper_two_step_masks(leaper_moves_masks* masks);
 void init_king_leaper_moves_masks(leaper_moves_masks* masks);
 void init_knight_leaper_moves_masks(leaper_moves_masks* masks);
 void init_leaper_moves_masks(leaper_moves_masks* masks);

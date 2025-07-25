@@ -129,23 +129,30 @@ void parse_fen(char *fen, Board* board) {
 int is_square_attacked(int square, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     // returns if the square is attacked by any piece of the given side in Board argument
     // pawns
-    if((board->side_to_move == white) && (get_pawn_attacks(leaper_masks, square, black) & board->pieces[P])) return 1;
-    if((board->side_to_move == black) && (get_pawn_attacks(leaper_masks, square, white) & board->pieces[p])) return 1;
+    int side;
+    if(board->side_to_move == black) {
+        side = white;
+    } else {
+        side = black;
+    }
+
+    if((side == white) && (get_pawn_attacks(leaper_masks, square, black) & board->pieces[P])) return 1;
+    if((side == black) && (get_pawn_attacks(leaper_masks, square, white) & board->pieces[p])) return 1;
     // knight
     if(get_knight_attacks(leaper_masks, square) & 
-    ((board->side_to_move == white) ? board->pieces[N] : board->pieces[n])) return 1;
+    ((side == white) ? board->pieces[N] : board->pieces[n])) return 1;
     // king
     if(get_king_attacks(leaper_masks, square) & 
-    ((board->side_to_move == white) ? board->pieces[K] : board->pieces[k])) return 1;
+    ((side == white) ? board->pieces[K] : board->pieces[k])) return 1;
     // rook
     if(get_rook_attacks(slider_masks, square, board->occupancies[both]) & 
-    ((board->side_to_move == white) ? board->pieces[R] : board->pieces[r])) return 1;
+    ((side == white) ? board->pieces[R] : board->pieces[r])) return 1;
     // bishop
     if(get_bishop_attacks(slider_masks, square, board->occupancies[both]) & 
-    ((board->side_to_move == white) ? board->pieces[B] : board->pieces[b])) return 1;
+    ((side == white) ? board->pieces[B] : board->pieces[b])) return 1;
     // queen
     if(get_queen_attacks(slider_masks, square, board->occupancies[both]) & 
-    ((board->side_to_move == white) ? board->pieces[Q] : board->pieces[q])) return 1;
+    ((side == white) ? board->pieces[Q] : board->pieces[q])) return 1;
     return 0;
 }
 

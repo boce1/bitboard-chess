@@ -13,15 +13,13 @@ int main() {
     init_slider_moves_masks(slider_masks);
 
     Board* board = create_board();
-    parse_fen(start_position, board);
+    parse_fen(tricky_position, board);
+    parse_fen("r1N1k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBPPPP/R3K2R b KQkq e3 0 1 ", board);
     //parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1 ", board);
+    //parse_fen("3n1b2/4P1p1/8/2pP4/8/1P6/5PpP/5N2 w - e6 ", board);
 
-    // print_bitboard(get_queen_attacks(slider_masks, d1, board->occupancies[both]));
-    // print_attacked_squares(board, leaper_masks, slider_masks);
-
-    for(int i = 0; i < 64; i++) {
-        print_bitboard(leaper_masks->pawn_one_step[white][i]);
-    }
+    print_board(board);
+    generate_moves(board, leaper_masks, slider_masks);
 
     free(leaper_masks);
     free(slider_masks);
