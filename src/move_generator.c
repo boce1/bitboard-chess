@@ -1,6 +1,6 @@
 #include "move_generator.h"
 
-void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece) {
+void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int piece) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -118,10 +118,6 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, slider_
 }
 
 void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece) {
-    int source_square, target_square;
-    uint64_t bitboard, attacks;
-
-    bitboard = board->pieces[piece];
     if(white == board->side_to_move) {
         if(piece == K) {
             if(board->castling_rights & wk) {
@@ -161,7 +157,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
     }
 }
 
-void genenrate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece) {
+void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int piece) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -178,7 +174,7 @@ void genenrate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, slid
                 
                 // quite moves
                 if(!get_bit(board->occupancies[opp_side], target_square)) {
-                    printf("knight move: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    printf("knight quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
                 } else { // capture moves
                     printf("knight capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
                 }
@@ -192,12 +188,79 @@ void genenrate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, slid
     
 }
 
+void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
+    int source_square, target_square;
+    uint64_t bitboard, attacks;
+
+    int opp_side = (board->side_to_move == white) ? black : white;
+
+    bitboard = board->pieces[piece];
+    if((board->side_to_move == white && piece == B) || (board->side_to_move == black && piece == b)) {
+        while(bitboard) {
+            source_square = get_least_significant_bit_index(bitboard);
+            attacks = get_bishop_attacks(slider_masks, source_square, board->occupancies[both]) & ~board->occupancies[board->side_to_move]; // get bishop attacks by remove capturing own pieces
+
+            while(attacks) {
+                target_square = get_least_significant_bit_index(attacks);
+                
+                // quite moves
+                if(!get_bit(board->occupancies[opp_side], target_square)) {
+                    printf("bishop quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                } else { // capture moves
+                    printf("bishop capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                }
+                
+                pop_bit(attacks, target_square);
+            }
+
+            pop_bit(bitboard, source_square);
+        }
+    }
+}
+/*
+rook quite: a1b1
+rook quite: a1c1
+rook quite: a1d1
+rook quite: h1f1
+rook quite: h1g1
+*/
+void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
+    int source_square, target_square;
+    uint64_t bitboard, attacks;
+
+    int opp_side = (board->side_to_move == white) ? black : white;
+
+    bitboard = board->pieces[piece];
+    if((board->side_to_move == white && piece == R) || (board->side_to_move == black && piece == r)) {
+        while(bitboard) {
+            source_square = get_least_significant_bit_index(bitboard);
+            attacks = get_rook_attacks(slider_masks, source_square, board->occupancies[both]) & ~board->occupancies[board->side_to_move]; // get rook attacks by remove capturing own pieces
+
+            while(attacks) {
+                target_square = get_least_significant_bit_index(attacks);
+                
+                // quite moves
+                if(!get_bit(board->occupancies[opp_side], target_square)) {
+                    printf("rook quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                } else { // capture moves
+                    printf("rook capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                }
+                
+                pop_bit(attacks, target_square);
+            }
+
+            pop_bit(bitboard, source_square);
+        }
+    }
+}
+
 void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     for(int piece = P; piece <= k; piece++) {
-        generate_pawn_moves(board, leaper_masks, slider_masks, piece); // generate only when pawn
+        generate_pawn_moves(board, leaper_masks, piece); // generate only when pawn
         generate_king_castle(board, leaper_masks, slider_masks, piece); // generate only when king
-        genenrate_knight_moves(board, leaper_masks, slider_masks, piece); // generate only when knight
-
+        generate_knight_moves(board, leaper_masks, piece); // generate only when knight
+        generate_bishop_moves(board, slider_masks, piece); // generate only when bishop
+        generate_rook_moves(board, slider_masks, piece); // generate only when rook
         // generate moves for knignt, bishop, rook, queen and king
 
     }
