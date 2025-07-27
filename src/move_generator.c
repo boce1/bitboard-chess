@@ -1,6 +1,6 @@
 #include "move_generator.h"
 
-void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int piece) {
+void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -14,17 +14,18 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                     // pawn promotion
                     if(source_square >= a7 && source_square <= h7) {
                         // generate all promotion moves
-                        printf("pawn promotion: %s%sQ\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn promotion: %s%sR\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn promotion: %s%sB\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn promotion: %s%sN\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, Q, not_capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, R, not_capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, B, not_capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, N, not_capturing, not_double_push, not_enpassant, not_castiling));
                     } else {
                         // one square forward
-                        printf("pawn push: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
+
                         // two squares forward
                         if((source_square >= a2 && source_square <= h2) && !get_bit(board->occupancies[both], target_square - 8)) {
                             target_square -= 8; // move pawn two places forward
-                            printf("double pawn push: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                            add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, double_push, not_enpassant, not_castiling));
 
                         }
                     }
@@ -33,15 +34,16 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                 while(attacks) {
                     target_square = get_least_significant_bit_index(attacks);
 
-                        // pawn promotion
+                    // pawn promotion
                     if(source_square >= a7 && source_square <= h7) {
                         // generate all promotion moves
-                        printf("pawn capture promotion: %s%sQ\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn capture promotion: %s%sR\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn capture promotion: %s%sB\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn capture promotion: %s%sN\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, Q, capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, R, capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, B, capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, N, capturing, not_double_push, not_enpassant, not_castiling));
                     } else {
-                        printf("pawn capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
+
                     }
 
                     pop_bit(attacks, target_square);
@@ -52,7 +54,8 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                     uint64_t enpassant_mask = get_pawn_attacks(leaper_masks, source_square, white) & (1ULL << board->en_passant_square);
                     if(enpassant_mask) {
                         int target_enpassant = get_least_significant_bit_index(enpassant_mask);
-                        printf("en passant capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_enpassant]);
+                        add_move(move_list, encode_move(source_square, target_enpassant, piece, no_piece, capturing, not_double_push, enpassant, not_castiling));
+
                     }   
                 }
 
@@ -68,17 +71,18 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                     // pawn promotion
                     if(source_square >= a2 && source_square <= h2) {
                         // generate all promotion moves
-                        printf("pawn promotion: %s%sq\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn promotion: %s%sr\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn promotion: %s%sb\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn promotion: %s%sn\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, q, not_capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, r, not_capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, b, not_capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, n, not_capturing, not_double_push, not_enpassant, not_castiling));
                     } else {
                         // one square forward
-                        printf("pawn push: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
+
                         // two squares forward
                         if((source_square >= a7 && source_square <= h7) && !get_bit(board->occupancies[both], target_square + 8)) {
                             target_square += 8; // move pawn two places dows
-                            printf("double pawn push: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                            add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, double_push, not_enpassant, not_castiling));
 
                         }
                     }
@@ -91,12 +95,12 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                     // pawn promotion
                     if(source_square >= a2 && source_square <= h2) {
                         // generate all promotion moves
-                        printf("pawn capture promotion: %s%sq\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn capture promotion: %s%se\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn capture promotion: %s%sb\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
-                        printf("pawn capture promotion: %s%sn\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, q, capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, r, capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, b, capturing, not_double_push, not_enpassant, not_castiling));
+                        add_move(move_list, encode_move(source_square, target_square, piece, n, capturing, not_double_push, not_enpassant, not_castiling));
                     } else {
-                        printf("pawn capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                        add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
                     }
 
                     pop_bit(attacks, target_square);
@@ -107,7 +111,7 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                     uint64_t enpassant_mask = get_pawn_attacks(leaper_masks, source_square, black) & (1ULL << board->en_passant_square);
                     if(enpassant_mask) {
                         int target_enpassant = get_least_significant_bit_index(enpassant_mask);
-                        printf("en passant capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_enpassant]);
+                        add_move(move_list, encode_move(source_square, target_enpassant, piece, no_piece, capturing, not_double_push, enpassant, not_castiling));
                     }   
                 }
 
@@ -117,13 +121,13 @@ void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
     }
 }
 
-void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece) {
+void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece, Moves* move_list) {
     if(white == board->side_to_move) {
         if(piece == K) {
             if(board->castling_rights & wk) {
                 if(!get_bit(board->occupancies[both], f1) && !get_bit(board->occupancies[both], g1)) { // check if f1 and g1 are empty
                     if(!is_square_attacked(e1, board, leaper_masks, slider_masks) && !is_square_attacked(f1, board, leaper_masks, slider_masks)) { // g1 is checked in make move function 
-                        printf("white king castle: e1g1\n");
+                        add_move(move_list, encode_move(e1, g1, piece, no_piece, not_capturing, not_double_push, not_enpassant, castiling));
                     }
                 }
             }
@@ -131,7 +135,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
             if(board->castling_rights & wq) {   
                 if(!get_bit(board->occupancies[both], d1) && !get_bit(board->occupancies[both], c1) && !get_bit(board->occupancies[both], b1)) { // check if d1, c1 and b1 are empty
                     if(!is_square_attacked(e1, board, leaper_masks, slider_masks) && !is_square_attacked(d1, board, leaper_masks, slider_masks)) { // c1 is checked in king leagal moves
-                        printf("white king castle: e1c1\n");
+                        add_move(move_list, encode_move(e1, c1, piece, no_piece, not_capturing, not_double_push, not_enpassant, castiling));
                     }
                 }
             }
@@ -141,7 +145,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
             if(board->castling_rights & bk) {
                 if(!get_bit(board->occupancies[both], f8) && !get_bit(board->occupancies[both], g8)) { // check if f8 and g8 are empty
                     if(!is_square_attacked(e8, board, leaper_masks, slider_masks) && !is_square_attacked(f8, board, leaper_masks, slider_masks)) { // g8 is checked in make move function
-                        printf("black king castle: e8g8\n");
+                        add_move(move_list, encode_move(e8, g8, piece, no_piece, not_capturing, not_double_push, not_enpassant, castiling));
                     }
                 }
             } 
@@ -149,7 +153,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
             if (board->castling_rights & bq) {   
                 if(!get_bit(board->occupancies[both], d8) && !get_bit(board->occupancies[both], c8) && !get_bit(board->occupancies[both], b8)) { // check if d8, c8 and b8 are empty
                     if(!is_square_attacked(e8, board, leaper_masks, slider_masks) && !is_square_attacked(d8, board, leaper_masks, slider_masks)) { // c8 is checked in king leagal moves
-                        printf("black king castle: e8c8\n");
+                        add_move(move_list, encode_move(e8, c8, piece, no_piece, not_capturing, not_double_push, not_enpassant, castiling));
                     }
                 }
             }
@@ -157,7 +161,7 @@ void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider
     }
 }
 
-void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int piece) {
+void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -188,7 +192,7 @@ void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int p
     
 }
 
-void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
+void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -218,7 +222,7 @@ void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int p
     }
 }
 
-void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
+void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -248,7 +252,7 @@ void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int pie
     }
 }
 
-void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int piece) {
+void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -278,7 +282,7 @@ void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int pi
     }
 }
 
-void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int piece) {
+void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
 
@@ -309,14 +313,62 @@ void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
 }
 
 
-void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
+void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, Moves* move_list) {
     for(int piece = P; piece <= k; piece++) {
-        generate_pawn_moves(board, leaper_masks, piece); // generate only when pawn
-        generate_king_castle(board, leaper_masks, slider_masks, piece); // generate only when king
-        generate_knight_moves(board, leaper_masks, piece); // generate only when knight
-        generate_bishop_moves(board, slider_masks, piece); // generate only when bishop
-        generate_rook_moves(board, slider_masks, piece); // generate only when rook
-        generate_queen_moves(board, slider_masks, piece); // generate only when queen
-        generate_king_moves(board, leaper_masks, piece); // generate only when king
+        generate_pawn_moves(board, leaper_masks, piece, move_list); // generate only when pawn
+        generate_king_castle(board, leaper_masks, slider_masks, piece, move_list); // generate only when king
+        generate_knight_moves(board, leaper_masks, piece, move_list); // generate only when knight
+        generate_bishop_moves(board, slider_masks, piece, move_list); // generate only when bishop
+        generate_rook_moves(board, slider_masks, piece, move_list); // generate only when rook
+        generate_queen_moves(board, slider_masks, piece, move_list); // generate only when queen
+        generate_king_moves(board, leaper_masks, piece, move_list); // generate only when king
+    }
+}
+
+const char promoted_pieces[128] = { // needs to be encoded with lowercase letter by standard
+    [Q] = 'q',
+    [R] = 'r',
+    [B] = 'b',
+    [N] = 'n',
+    [q] = 'q',
+    [r] = 'r',
+    [b] = 'b',
+    [n] = 'n'
+};
+
+void print_move(int move) {
+    printf("%s%s%c   %c       %c      %c        %c        %c\n", square_to_cordinates[get_move_source(move)],
+        square_to_cordinates[get_move_target(move)],
+        get_move_promoted(move) ? promoted_pieces[get_move_promoted(move)] : ' ',
+        ascii_pieces[get_move_piece(move)],
+        get_move_capture(move) ? '1' : '-',
+        get_move_double_push(move) ? '1' : '-',
+        get_move_enpassant(move) ? '1' : '-',
+        get_move_castiling(move) ? '1' : '-');
+}
+
+void init_move_list(Moves* move_list) {
+    if(move_list) {
+        move_list->count = 0;
+        for(int i = 0; i < 256; i++) {
+            move_list->moves[i] = 0;
+        }
+    }
+
+}
+
+void print_move_list(Moves* move_list) {
+    printf("move  piece  capture double enpassant castile\n");
+    for(int i = 0; i < move_list->count; i++) {
+        print_move(move_list->moves[i]);
+    }
+    printf("Moves number: %d\n\n", move_list->count);
+}
+
+void add_move(Moves* move_list, int move) {
+    if(move_list->count < 256) {
+        move_list->moves[move_list->count++] = move;
+    } else {
+        printf("Move list is full, cannot add more moves.\n");
     }
 }

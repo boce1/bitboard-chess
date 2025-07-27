@@ -27,14 +27,14 @@ typedef enum {
 } castiling_flag;
 
 // 1111 in binary, other pieces are from the bitboard.h definitions (0 - 11)
-#define no_piece 16
+#define no_piece 0
 
 #define encode_move(source, target, piece, promoted, capture, double_push, enpassant, castiling) \
     (source) | (target << 6) | (piece << 12) | \
     (promoted << 16) | (capture << 20) | (double_push << 21) | \
     (enpassant << 22) | (castiling << 23)
 #define get_move_source(move) ((move) & 0x3f)
-#define get_move_target(move) (((move) & 0x3c0) >> 6)
+#define get_move_target(move) (((move) & 0xfc0) >> 6)
 #define get_move_piece(move) (((move) & 0xf000) >> 12)
 #define get_move_promoted(move) (((move) & 0xf0000) >> 16)
 #define get_move_capture(move) ((move) & 0x100000)
@@ -42,16 +42,27 @@ typedef enum {
 #define get_move_enpassant(move) ((move) & 0x400000)
 #define get_move_castiling(move) ((move) & 0x800000)
 
-// TODO: later add move list
+
+typedef struct {
+    int moves[256]; // array to store moves, max 256 moves per position
+    int count; // number of moves in the array
+} Moves;
+
 // first implement logic
-void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks);
-void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int piece);
-void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece);
-void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int piece);
-void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int piece);
-void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int piece);
-void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int piece);
-void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int piece);
+void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, Moves* move_list);
+void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list);
+void generate_king_castle(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int piece, Moves* move_list);
+void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list);
+void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list);
+void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list);
+void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list);
+void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list);
+
+extern const char promoted_pieces[128];
+
+void print_move(int move);
+void print_move_list(Moves* moves);
+void add_move(Moves* moves, int move);
 
 /*
     encoding/deconding moves
@@ -78,9 +89,6 @@ void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int pi
     0010 0000 0000 0000 0000 0000  double push flag mask   0x200000
     0100 0000 0000 0000 0000 0000  enpassant flag mask     0x400000
     1000 0000 0000 0000 0000 0000  castling flag mask      0x800000
-
-
-
 */
 
 #endif // MOVE_GENERATOR_H

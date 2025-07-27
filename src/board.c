@@ -7,13 +7,7 @@ const int char_to_piece[] = {
     // maps ASCII characters to piece types
 };
 
-Board* create_board() {
-    Board* board = (Board*)malloc(sizeof(Board));
-    if (!board) {
-        fprintf(stderr, "Memory allocation failed for Board\n");
-        exit(EXIT_FAILURE);
-    }
-
+void init_board(Board* board) {
     for (int i = 0; i < 12; i++) {
         board->pieces[i] = 0ULL;
     }
@@ -24,6 +18,16 @@ Board* create_board() {
     board->side_to_move = white;
     board->en_passant_square = no_square;
     board->castling_rights = wk | wq | bk | bq;
+}
+
+Board* create_board() {
+    Board* board = (Board*)malloc(sizeof(Board));
+    if (!board) {
+        fprintf(stderr, "Memory allocation failed for Board\n");
+        exit(EXIT_FAILURE);
+    }
+
+    init_board(board);
     return board;
 }
 
