@@ -5,6 +5,7 @@
 #include "move_generator.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main() {
     leaper_moves_masks* leaper_masks = create_leaper_moves_masks(); // pawn, knight, king masks
@@ -15,19 +16,25 @@ int main() {
     //Board* board = create_board();
     Board board[1];
     init_board(board);
-    parse_fen(tricky_position, board);
-    //parse_fen("r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq a3 0 1 ", board);
-    //parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1 ", board);
-    //parse_fen("3n1b2/4P1p1/8/2pP4/8/1P6/5PpP/5N2 w - e6 ", board);
-
+    //parse_fen(tricky_position, board);
+    parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ", board);
     
-    //print_move(move);
     Moves move_list;
     init_move_list(&move_list);
     generate_moves(board, leaper_masks, slider_masks, &move_list);
-    //add_move(move_list, encode_move(e7, e8, B, B, not_capturing, double_push, enpassant, castiling));
-    print_move_list(&move_list);
-    print_board(board);
+    
+    for (int i = 0; i < move_list.count; i++) {
+        int move = move_list.moves[i];
+
+        copy_board(board);
+        make_move(board, move, all_moves);
+        print_board(board);
+
+        take_back(board);
+        print_board(board);
+        
+        getchar();
+    }
 
     //free(board); 
     free(leaper_masks);  

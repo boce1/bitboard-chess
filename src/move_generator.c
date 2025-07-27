@@ -325,6 +325,7 @@ void generate_moves(Board* board, leaper_moves_masks* leaper_masks, slider_moves
     }
 }
 
+//------------------------
 const char promoted_pieces[128] = { // needs to be encoded with lowercase letter by standard
     [Q] = 'q',
     [R] = 'r',
@@ -370,5 +371,32 @@ void add_move(Moves* move_list, int move) {
         move_list->moves[move_list->count++] = move;
     } else {
         printf("Move list is full, cannot add more moves.\n");
+    }
+}
+// -----------------------
+
+int make_move(Board* board, int move, int move_flag) {
+    if(move_flag == all_moves) {
+        //copy_board(board);
+
+        int source_square = get_move_source(move);
+        int target_square = get_move_target(move);
+        int piece = get_move_piece(move);
+        int promoted = get_move_promoted(move);
+        int capture = get_move_capture(move);
+        int double_push = get_move_double_push(move);
+        int enpass = get_move_enpassant(move);
+        int castiling = get_move_castiling(move);
+
+        pop_bit(board->pieces[piece], source_square);
+        set_bit(board->pieces[piece], target_square);
+
+        return 0;
+    } else { // only_captures
+        if(get_move_capture(move)) {
+            make_move(board, move, all_moves);
+        } else {
+            return 0;
+        }
     }
 }

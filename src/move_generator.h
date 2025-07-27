@@ -5,10 +5,11 @@
 #include "attack.h"
 #include "bitboard.h"
 #include <stdint.h>
+#include <string.h>
 
 typedef enum {
     not_promoting, promoting
-} promoted_flag;`
+} promoted_flag;
 
 typedef enum {
     not_capturing, capturing 
@@ -64,6 +65,39 @@ void print_move(int move);
 void print_move_list(Moves* moves);
 void add_move(Moves* moves, int move);
 void init_move_list(Moves* move_list);
+
+
+
+/*
+typedef struct {
+    uint64_t pieces[12]; // 12 types of pieces (6 for each color)
+    uint64_t occupancies[3]; // 3 occupancies: white, black, both
+    int side_to_move; // white, black
+    int en_passant_square;
+    int castling_rights; // bitmask for castling rights (white kingside, white queenside, black kingside, black queenside)
+} Board;
+
+board.pieces size 96
+board.occupancies size 24
+*/
+
+#define copy_board(board) \
+    uint64_t bitboards_copy[12], occupancies_copy[3]; \
+    int side_copy, enpassant_copy, castle_copy; \
+    memcpy(bitboards_copy, (board)->pieces, 96); \
+    memcpy(occupancies_copy, (board)->occupancies,  24); \
+    side_copy = (board)->side_to_move; enpassant_copy = (board)->en_passant_square; castle_copy = (board)->castling_rights; \
+
+// take back must be called in the same scope as copy_board
+// take_back must not be called before copy_board
+#define take_back(board) \
+    memcpy((board)->pieces, bitboards_copy, sizeof((board)->pieces)); \
+    memcpy((board)->occupancies, occupancies_copy, sizeof((board)->occupancies)); \
+    (board)->side_to_move = side_copy; (board)->en_passant_square = enpassant_copy; (board)->castling_rights = castle_copy; \
+
+typedef enum { all_moves, only_captures } move_flags;
+
+int make_move(Board* board, int move, int move_flag); // move_flag can be all_moves or only_captures
 
 /*
     encoding/deconding moves
