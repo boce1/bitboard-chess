@@ -377,12 +377,12 @@ void add_move(Moves* move_list, int move) {
 
 int make_move(Board* board, int move, int move_flag) {
     if(move_flag == all_moves) {
-        //copy_board(board);
+        copy_board(board);
 
         int source_square = get_move_source(move);
         int target_square = get_move_target(move);
         int piece = get_move_piece(move);
-        int promoted = get_move_promoted(move);
+        int promoted_piece = get_move_promoted(move);
         int capture = get_move_capture(move);
         int double_push = get_move_double_push(move);
         int enpass = get_move_enpassant(move);
@@ -390,6 +390,33 @@ int make_move(Board* board, int move, int move_flag) {
 
         pop_bit(board->pieces[piece], source_square);
         set_bit(board->pieces[piece], target_square);
+
+        if(capture) { // capture pieces
+            int start_piece, end_piece;
+            if(board->side_to_move == white) {
+                start_piece = p;
+                end_piece = k;
+            } else { // black side
+                start_piece = P;
+                end_piece = K;
+            }
+
+            for(int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++ ) {
+                if(get_bit(board->pieces[bb_piece], target_square)) {
+                    pop_bit(board->pieces[bb_piece], target_square);
+                    break;
+                }
+            }
+        }
+
+        if(promoted_piece) {
+            if(board->side_to_move == white) {
+                pop_bit(board->pieces[P], target_square);
+            } else {
+                pop_bit(board->pieces[p], target_square);
+            }
+            set_bit(board->pieces[promoted_piece], target_square);
+        }
 
         return 0;
     } else { // only_captures

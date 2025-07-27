@@ -17,7 +17,7 @@ int main() {
     Board board[1];
     init_board(board);
     //parse_fen(tricky_position, board);
-    parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ", board);
+    parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b KQkq c6 0 1 ", board);
     
     Moves move_list;
     init_move_list(&move_list);
