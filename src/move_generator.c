@@ -418,6 +418,11 @@ int make_move(Board* board, int move, int move_flag) {
             set_bit(board->pieces[promoted_piece], target_square);
         }
 
+        if(enpass) { // en passant captures
+            if(board->side_to_move == white) pop_bit(board->pieces[p], target_square + 8);
+            else pop_bit(board->pieces[P], target_square - 8);
+        }
+
         return 0;
     } else { // only_captures
         if(get_move_capture(move)) {
