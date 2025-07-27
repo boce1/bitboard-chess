@@ -8,7 +8,7 @@
 
 typedef enum {
     not_promoting, promoting
-} promoted_flag;
+} promoted_flag;`
 
 typedef enum {
     not_capturing, capturing 
@@ -63,6 +63,7 @@ extern const char promoted_pieces[128];
 void print_move(int move);
 void print_move_list(Moves* moves);
 void add_move(Moves* moves, int move);
+void init_move_list(Moves* move_list);
 
 /*
     encoding/deconding moves

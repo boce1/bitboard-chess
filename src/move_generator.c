@@ -178,9 +178,9 @@ void generate_knight_moves(Board* board, leaper_moves_masks* leaper_masks, int p
                 
                 // quite moves
                 if(!get_bit(board->occupancies[opp_side], target_square)) {
-                    printf("knight quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
                 } else { // capture moves
-                    printf("knight capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
                 }
                 
                 pop_bit(attacks, target_square);
@@ -209,9 +209,9 @@ void generate_bishop_moves(Board* board, slider_moves_masks* slider_masks, int p
                 
                 // quite moves
                 if(!get_bit(board->occupancies[opp_side], target_square)) {
-                    printf("bishop quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
                 } else { // capture moves
-                    printf("bishop capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
                 }
                 
                 pop_bit(attacks, target_square);
@@ -239,9 +239,9 @@ void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int pie
                 
                 // quite moves
                 if(!get_bit(board->occupancies[opp_side], target_square)) {
-                    printf("rook quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
                 } else { // capture moves
-                    printf("rook capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
                 }
                 
                 pop_bit(attacks, target_square);
@@ -269,9 +269,9 @@ void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int pi
                 
                 // quite moves
                 if(!get_bit(board->occupancies[opp_side], target_square)) {
-                    printf("queen quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
                 } else { // capture moves
-                    printf("queen capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
                 }
                 
                 pop_bit(attacks, target_square);
@@ -299,9 +299,9 @@ void generate_king_moves(Board* board, leaper_moves_masks* leaper_masks, int pie
                 
                 // quite moves
                 if(!get_bit(board->occupancies[opp_side], target_square)) {
-                    printf("king quite: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, not_capturing, not_double_push, not_enpassant, not_castiling));
                 } else { // capture moves
-                    printf("king capture: %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+                    add_move(move_list, encode_move(source_square, target_square, piece, no_piece, capturing, not_double_push, not_enpassant, not_castiling));
                 }
                 
                 pop_bit(attacks, target_square);
