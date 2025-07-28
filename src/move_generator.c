@@ -388,7 +388,7 @@ void add_move(Moves* move_list, int move) {
 
 int make_move(Board* board, int move, int move_flag) {
     if(move_flag == all_moves) {
-        copy_board(board);
+        // copy_board(board);
 
         int source_square = get_move_source(move);
         int target_square = get_move_target(move);
@@ -469,6 +469,17 @@ int make_move(Board* board, int move, int move_flag) {
         board->castling_rights &= castling_rights_vals[source_square]; // if pieces move
         board->castling_rights &= castling_rights_vals[target_square]; // if pieces get captured
 
+        memset(board->occupancies, 0ULL, 24);
+        int bb_piece;
+        for(bb_piece = P; bb_piece <= K; bb_piece++) {
+            board->occupancies[white] |= board->pieces[bb_piece]; 
+        }
+        for(bb_piece = p; bb_piece <= k; bb_piece++) {
+            board->occupancies[black] |= board->pieces[bb_piece]; 
+        }
+        board->occupancies[both] |= board->occupancies[white];
+        board->occupancies[both] |= board->occupancies[black];
+
         return 0;
     } else { // only_captures
         if(get_move_capture(move)) {
@@ -477,4 +488,5 @@ int make_move(Board* board, int move, int move_flag) {
             return 0;
         }
     }
+    return 0;
 }

@@ -29,8 +29,8 @@ int main() {
 
         copy_board(board);
         make_move(board, move, all_moves);
-        print_board(board);
-
+        //print_board(board);
+        print_bitboard(board->occupancies[both]);
         take_back(board);
         // print_board(board);
         
