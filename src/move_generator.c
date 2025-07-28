@@ -396,7 +396,7 @@ int make_move(Board* board, int move, int move_flag) {
             if(board->side_to_move == white) {
                 start_piece = p;
                 end_piece = k;
-            } else { // black side
+            } else if(board->side_to_move == black) { // black side
                 start_piece = P;
                 end_piece = K;
             }
@@ -412,7 +412,7 @@ int make_move(Board* board, int move, int move_flag) {
         if(promoted_piece) {
             if(board->side_to_move == white) {
                 pop_bit(board->pieces[P], target_square);
-            } else {
+            } else if(board->side_to_move == black) {
                 pop_bit(board->pieces[p], target_square);
             }
             set_bit(board->pieces[promoted_piece], target_square);
@@ -420,7 +420,38 @@ int make_move(Board* board, int move, int move_flag) {
 
         if(enpass) { // en passant captures
             if(board->side_to_move == white) pop_bit(board->pieces[p], target_square + 8);
-            else pop_bit(board->pieces[P], target_square - 8);
+            else if (board->side_to_move == black) pop_bit(board->pieces[P], target_square - 8);
+        }
+
+        board->en_passant_square = no_square; // reset en passant exceot double pawn push
+
+        if(double_push) {
+            if(board->side_to_move == white) {
+                board->en_passant_square = target_square + 8;
+            } else if(board->side_to_move == black){
+                board->en_passant_square = target_square - 8;
+            }
+        }
+
+        if(castiling) {
+            switch(target_square) {
+                case (g1): // white king side
+                    pop_bit(board->pieces[R], h1);
+                    set_bit(board->pieces[R], f1);
+                    break;
+                case (c1): // white queen side
+                    pop_bit(board->pieces[R], a1);
+                    set_bit(board->pieces[R], d1);
+                    break;
+                case (g8): // black king side
+                    pop_bit(board->pieces[r], h8);
+                    set_bit(board->pieces[r], f8);
+                    break;
+                case (c8): // black queen side
+                    pop_bit(board->pieces[r], a8);
+                    set_bit(board->pieces[r], d8);
+                    break;
+            }
         }
 
         return 0;
