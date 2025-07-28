@@ -1,5 +1,16 @@
 #include "move_generator.h"
 
+const int castling_rights_vals[64] = {
+    7, 15, 15, 15, 3, 15, 15, 11,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    13, 15, 15, 15, 12, 15, 15, 14
+};
+
 void generate_pawn_moves(Board* board, leaper_moves_masks* leaper_masks, int piece, Moves* move_list) {
     int source_square, target_square;
     uint64_t bitboard, attacks;
@@ -453,6 +464,10 @@ int make_move(Board* board, int move, int move_flag) {
                     break;
             }
         }
+
+        // update castiling rights
+        board->castling_rights &= castling_rights_vals[source_square]; // if pieces move
+        board->castling_rights &= castling_rights_vals[target_square]; // if pieces get captured
 
         return 0;
     } else { // only_captures

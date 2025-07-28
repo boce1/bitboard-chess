@@ -27,8 +27,11 @@ typedef enum {
     not_castiling, castiling
 } castiling_flag;
 
-// 1111 in binary, other pieces are from the bitboard.h definitions (0 - 11)
+// 0 in binary, other pieces are from the bitboard.h definitions (0 - 11)
 #define no_piece 0
+
+
+
 
 #define encode_move(source, target, piece, promoted, capture, double_push, enpassant, castiling) \
     (source) | (target << 6) | (piece << 12) | \
@@ -60,22 +63,20 @@ void generate_rook_moves(Board* board, slider_moves_masks* slider_masks, int pie
 void generate_queen_moves(Board* board, slider_moves_masks* slider_masks, int piece, Moves* move_list);
 
 extern const char promoted_pieces[128];
+extern const int castling_rights_vals[64];
 
 void print_move(int move);
 void print_move_list(Moves* moves);
 void add_move(Moves* moves, int move);
 void init_move_list(Moves* move_list);
 
-
-
 /*
-typedef struct {
+Board
     uint64_t pieces[12]; // 12 types of pieces (6 for each color)
     uint64_t occupancies[3]; // 3 occupancies: white, black, both
     int side_to_move; // white, black
     int en_passant_square;
     int castling_rights; // bitmask for castling rights (white kingside, white queenside, black kingside, black queenside)
-} Board;
 
 board.pieces size 96
 board.occupancies size 24
@@ -100,7 +101,7 @@ typedef enum { all_moves, only_captures } move_flags;
 int make_move(Board* board, int move, int move_flag); // move_flag can be all_moves or only_captures
 
 /*
-    encoding/deconding moves
+    ----------------encoding/deconding moves-------------------
     
     source square
     target square
@@ -124,6 +125,28 @@ int make_move(Board* board, int move, int move_flag); // move_flag can be all_mo
     0010 0000 0000 0000 0000 0000  double push flag mask   0x200000
     0100 0000 0000 0000 0000 0000  enpassant flag mask     0x400000
     1000 0000 0000 0000 0000 0000  castling flag mask      0x800000
+    ----------------------------------------------------------------------
+
+    -------------------------castling rights-----------------------------
+    castiling bits
+    wk = 1, wq = 2, bk = 4, bq = 8
+  
+    move update
+
+    white king moved            1100    12
+    white kings rook moved      1110    14
+    white queens rook moved     1101    13
+
+    black king moved            0011    3
+    black kings rook moved      1011    11
+    black queens rook moved     0111    7
+
+    move update having all rights
+    castling right & 1111
+
+    new castiling rights = castling rights & move update
+    ----------------------------------------------------------------------
+
 */
 
 #endif // MOVE_GENERATOR_H
