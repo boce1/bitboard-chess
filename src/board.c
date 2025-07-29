@@ -131,7 +131,7 @@ void parse_fen(char *fen, Board* board) {
 }
 
 int is_square_attacked(int square, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
-    // returns if the square is attacked by any piece of the given side in Board argument
+    // returns if the square is attacked by any piece of the opposite side
     // pawns
     int side;
     if(board->side_to_move == black) {

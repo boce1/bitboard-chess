@@ -92,13 +92,13 @@ board.occupancies size 24
 // take back must be called in the same scope as copy_board
 // take_back must not be called before copy_board
 #define take_back(board) \
-    memcpy((board)->pieces, bitboards_copy, sizeof((board)->pieces)); \
-    memcpy((board)->occupancies, occupancies_copy, sizeof((board)->occupancies)); \
+    memcpy((board)->pieces, bitboards_copy, 96); \
+    memcpy((board)->occupancies, occupancies_copy, 24); \
     (board)->side_to_move = side_copy; (board)->en_passant_square = enpassant_copy; (board)->castling_rights = castle_copy; \
 
 typedef enum { all_moves, only_captures } move_flags;
 
-int make_move(Board* board, int move, int move_flag); // move_flag can be all_moves or only_captures
+int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks); // move_flag can be all_moves or only_captures
 
 /*
     ----------------encoding/deconding moves-------------------

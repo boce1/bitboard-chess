@@ -386,9 +386,9 @@ void add_move(Moves* move_list, int move) {
 }
 // -----------------------
 
-int make_move(Board* board, int move, int move_flag) {
+int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     if(move_flag == all_moves) {
-        // copy_board(board);
+        copy_board(board);
 
         int source_square = get_move_source(move);
         int target_square = get_move_target(move);
@@ -401,7 +401,7 @@ int make_move(Board* board, int move, int move_flag) {
 
         pop_bit(board->pieces[piece], source_square);
         set_bit(board->pieces[piece], target_square);
-
+        //printf("\n%s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
         if(capture) { // capture pieces
             int start_piece, end_piece;
             if(board->side_to_move == white) {
@@ -480,13 +480,35 @@ int make_move(Board* board, int move, int move_flag) {
         board->occupancies[both] |= board->occupancies[white];
         board->occupancies[both] |= board->occupancies[black];
 
-        return 0;
-    } else { // only_captures
+        
+        // king has not been exposed into a check
+        int king_pos;
+        if(board->side_to_move == white) {
+            king_pos = get_least_significant_bit_index(board->pieces[K]);
+            if(is_square_attacked(king_pos, board, leaper_masks, slider_masks)) {
+                take_back(board);
+                return 0;
+            }
+        } else if(board->side_to_move == black) {
+            king_pos = get_least_significant_bit_index(board->pieces[k]);
+            if(is_square_attacked(king_pos, board, leaper_masks, slider_masks)) {
+                take_back(board);
+                return 0;
+            }
+        }
+
+        // change side
+        board->side_to_move ^= 1;
+
+        return 1;
+        
+    } else if(move_flag == only_captures) {
         if(get_move_capture(move)) {
-            make_move(board, move, all_moves);
+            make_move(board, move, all_moves, leaper_masks, slider_masks);
         } else {
             return 0;
         }
     }
     return 0;
+       
 }
