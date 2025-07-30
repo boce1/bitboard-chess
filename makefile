@@ -5,7 +5,7 @@ SRC=$(wildcard $(SRC_DIR)/*.c)
 EXEC=$(BIN_DIR)/bitboard_chess
 
 CFLAGS_DEBUG=-Wall -Wextra
-CFLAGS_RELEASE=-O2
+CFLAGS_RELEASE=-Ofast
 
 all: release
 
