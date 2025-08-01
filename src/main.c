@@ -14,27 +14,22 @@ int main() {
     slider_moves_masks* slider_masks = create_slider_moves_masks(); // rook, bishop, queen masks
     init_leaper_moves_masks(leaper_masks);
     init_slider_moves_masks(slider_masks);
-    
     //Board* board = create_board();
     Board board[1];
     init_board(board);
-    // parse_fen(tricky_position, board);
-    parse_fen("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1", board);
-    print_board(board);
-    
-    int move = parse_move("e5d6", board, leaper_masks, slider_masks);
-    if(move) {
-        make_move(board, move, all_moves, leaper_masks, slider_masks);
-        print_board(board);
-    } else {
-        printf("illegal move!\n");
-    }
 
+    // parse_position("position startpos moves e2e4 e7e5 g1f3 d7d6", board, leaper_masks, slider_masks);
+    // print_board(board);
+    // parse_go("go depth 5", board, leaper_masks, slider_masks);
+    uci_loop(board, leaper_masks, slider_masks);
     
     //free(board); 
-    free(leaper_masks);  
-    free(slider_masks);
-
+    if(leaper_masks != NULL) {
+        free(leaper_masks);  
+    }
+    if(slider_masks != NULL) {
+        free(slider_masks);
+    }
     
     return 0;
 }
