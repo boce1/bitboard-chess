@@ -2,6 +2,7 @@
 
 int parse_move(char* move_string, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     Moves move_list[1];
+    init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
 
     int source_square = (move_string[0] - 'a') + (8 - (move_string[1] - '0')) * 8;
@@ -88,17 +89,12 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
 
 void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     // go depth n
-    int depth = -1;
+    int depth = 6;
     char* current_char = NULL;
     if((current_char = strstr(command, "depth"))) {
         depth = atoi(current_char + 6); // "depth "
-    } else {
-        depth = 6;
-    }
-
+    } 
     search_position(depth, board, leaper_masks, slider_masks);
-
-    // printf("%d\n", depth);
 }
 
 /*
@@ -155,6 +151,8 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 }
 
 void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
-    // bestmove is uci command
-    printf("bestmove d2d4\n");
+    int score = negamax(board, leaper_masks, slider_masks, ALPHA, BETA, depth);
+    int source_square = get_move_source(best_move);
+    int target_square = get_move_target(best_move);
+    printf("bestmove %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
 }

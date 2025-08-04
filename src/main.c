@@ -4,6 +4,7 @@
 #include "board.h"
 #include "move_generator.h"
 #include "uci.h"
+#include "negamax.h"
 //#include "perft.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +19,28 @@ int main() {
     Board board[1];
     init_board(board);
 
-    // parse_position("position startpos moves e2e4 e7e5 g1f3 d7d6", board, leaper_masks, slider_masks);
-    // print_board(board);
-    // parse_go("go depth 5", board, leaper_masks, slider_masks);
-    uci_loop(board, leaper_masks, slider_masks);
+    int debug = 0;
+    if(debug) {
+        // debug code
+        parse_fen("rnbqkbnr/ppppppp1/8/7p/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1", board);
+        print_board(board);
+        search_position(6, board, leaper_masks, slider_masks);
+        //Moves mv[1];
+        //init_move_list(mv);
+        //generate_moves(board, leaper_masks, slider_masks, mv);
+//
+        //for(int i = 0; i < mv->count; i++) {
+        //    copy_board(board);
+        //    if(make_move(board, mv->moves[i], all_moves, leaper_masks, slider_masks) != 0) {
+        //        print_board(board);
+        //        take_back(board);
+        //        print_move(mv->moves[i]);
+        //    }
+        //}
+        //printf("score %d\n", evaluate(board));
+    } else {
+        uci_loop(board, leaper_masks, slider_masks);
+    }
     
     //free(board); 
     if(leaper_masks != NULL) {
