@@ -151,7 +151,26 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
     if(depth == 0) {
         return evaluate(board);
     }
-    nodes++;
+    nodes++; // will be used later to reduced search space
+    int legal_moves = 0;
+
+    int in_check = 0;
+    int king_pos;
+    if(board->side_to_move == white) {
+        king_pos = get_least_significant_bit_index(board->pieces[K]);
+        if(is_square_attacked(king_pos, board, leaper_masks, slider_masks)) {
+            in_check = 1;
+        }
+    } else if(board->side_to_move == black) {
+        king_pos = get_least_significant_bit_index(board->pieces[k]);
+        if(is_square_attacked(king_pos, board, leaper_masks, slider_masks)) {
+            in_check = 1;
+        }
+    }
+
+
+
+
     Moves move_list[1];
     init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
@@ -161,12 +180,15 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
     for(int count = 0; count < move_list->count; count++) {
         copy_board(board);
-        if(make_move(board, move_list->moves[count], all_moves, leaper_masks, slider_masks) == 0) {
-            take_back(board);
-        }
         ply++;
-        int score = -negamax(board, leaper_masks, slider_masks, -beta, -alpha, depth - 1);
-        
+        if(make_move(board, move_list->moves[count], all_moves, leaper_masks, slider_masks) == 0) {
+            ply--;
+            continue;
+        }
+
+        legal_moves++;
+
+        int score = -negamax(board, leaper_masks, slider_masks, -beta, -alpha, depth-1);
         take_back(board);
         ply--;
 
@@ -180,6 +202,15 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
             if(ply == 0) {
                 best_move_sofar = move_list->moves[count];
             }
+        }
+    }
+
+    if(legal_moves == 0) {
+        if(in_check) { // mating score assuming closest distance to mating position
+            return ALPHA + 1 + ply;
+        } else {
+            // stalemate
+            return 0;
         }
     }
 

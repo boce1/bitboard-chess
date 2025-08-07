@@ -20,7 +20,8 @@ extern const int mirror_score[128];
 #define BETA 50000
 
 extern int ply; // half move counter
-extern int best_move;
+extern int best_move; // placeholder, remove later
+
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth);
 
 int evaluate(Board* board);

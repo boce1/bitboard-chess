@@ -89,7 +89,7 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
 
 void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     // go depth n
-    int depth = 6;
+    int depth = 3;
     char* current_char = NULL;
     if((current_char = strstr(command, "depth"))) {
         depth = atoi(current_char + 6); // "depth "
@@ -154,5 +154,6 @@ void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, 
     int score = negamax(board, leaper_masks, slider_masks, ALPHA, BETA, depth);
     int source_square = get_move_source(best_move);
     int target_square = get_move_target(best_move);
-    printf("bestmove %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+    printf("info score cp %d depth %d nodes %ld\n", score, depth, nodes);
+    printf("bestmove %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);    
 }
