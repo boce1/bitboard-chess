@@ -504,7 +504,7 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
         
     } else if(move_flag == only_captures) {
         if(get_move_capture(move)) {
-            make_move(board, move, all_moves, leaper_masks, slider_masks);
+            return make_move(board, move, all_moves, leaper_masks, slider_masks);
         } else {
             return 0;
         }

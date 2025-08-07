@@ -147,9 +147,48 @@ int evaluate(Board* board) {
     return 0;
 }
 
+int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta) {
+    int eval = evaluate(board);
+    if(eval >= beta) {
+        return beta;
+    }
+    if(eval > alpha) {
+        alpha = eval;
+    }
+    
+    Moves move_list[1];
+    init_move_list(move_list);
+    generate_moves(board, leaper_masks, slider_masks, move_list);
+
+    for(int count = 0; count < move_list->count; count++) {
+        copy_board(board);
+        ply++;
+        if(make_move(board, move_list->moves[count], only_captures, leaper_masks, slider_masks) == 0) {
+            ply--;
+            continue;
+        }
+
+        int score = -quiescence(board, leaper_masks, slider_masks, -beta, -alpha);
+        take_back(board);
+        ply--;
+
+        if(score >= beta){
+            return beta;
+        }
+
+        if(score > alpha) {
+            alpha = score;
+
+        }
+    }
+
+    return alpha;
+}
+
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth) {
     if(depth == 0) {
-        return evaluate(board);
+        return quiescence(board, leaper_masks, slider_masks, alpha, beta);
+        //return evaluate(board);
     }
     nodes++; // will be used later to reduced search space
     int legal_moves = 0;
@@ -167,8 +206,6 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
             in_check = 1;
         }
     }
-
-
 
 
     Moves move_list[1];
