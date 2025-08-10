@@ -27,4 +27,13 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
 int evaluate(Board* board);
 
+// move ordering
+
+// most valuable victim least valuable attacker
+extern int mvv_lva[12][12];
+
+int score_move(int move, Board* board);
+void sort_moves(Moves* move_list, Board* board);
+void print_move_scores(Moves* move_list, Board* board);
+
 #endif

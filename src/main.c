@@ -19,24 +19,19 @@ int main() {
     Board board[1];
     init_board(board);
 
-    int debug = 0;
+    int debug = 1;
     if(debug) {
         // debug code
-        parse_fen("rnbqkbnr/ppppppp1/8/7p/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1", board);
+        parse_fen(tricky_position, board);
         print_board(board);
-        search_position(6, board, leaper_masks, slider_masks);
+        
+        search_position(1, board, leaper_masks, slider_masks);
         //Moves mv[1];
         //init_move_list(mv);
         //generate_moves(board, leaper_masks, slider_masks, mv);
 //
-        //for(int i = 0; i < mv->count; i++) {
-        //    copy_board(board);
-        //    if(make_move(board, mv->moves[i], all_moves, leaper_masks, slider_masks) != 0) {
-        //        print_board(board);
-        //        take_back(board);
-        //        print_move(mv->moves[i]);
-        //    }
-        //}
+        //sort_moves(mv, board);
+        //print_move_scores(mv, board);        
         //printf("score %d\n", evaluate(board));
     } else {
         uci_loop(board, leaper_masks, slider_masks);

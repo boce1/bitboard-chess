@@ -87,6 +87,86 @@ const int mirror_score[128] = {
 	a8, b8, c8, d8, e8, f8, g8, h8
 };
 
+/*
+                          
+    (Victims) Pawn Knight Bishop   Rook  Queen   King
+  (Attackers)
+        Pawn   105    205    305    405    505    605
+      Knight   104    204    304    404    504    604
+      Bishop   103    203    303    403    503    603
+        Rook   102    202    302    402    502    602
+       Queen   101    201    301    401    501    601
+        King   100    200    300    400    500    600
+
+*/
+
+// MVV LVA [attacker][victim]
+int mvv_lva[12][12] = {
+ 	{105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
+	{104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604},
+	{103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603},
+	{102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602},
+	{101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601},
+	{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600},
+
+	{105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
+	{104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604},
+	{103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603},
+	{102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602},
+	{101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601},
+	{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600}
+};
+
+int score_move(int move, Board* board) {
+    if(get_move_capture(move)) {
+        int target_piece = P; // if it isnt initialized en passant wont work, because doesnt containe the piiece on the square
+        int target_square = get_move_target(move);
+
+        int start_piece, end_piece;
+        if(board->side_to_move == white) {
+            start_piece = p;
+            end_piece = k;
+        } else if(board->side_to_move == black) {
+            start_piece = P;
+            end_piece = K;
+        }
+
+        for(int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++ ) {
+            if(get_bit(board->pieces[bb_piece], target_square)) {
+                target_piece = bb_piece;
+                break;
+            }
+        }
+
+        return mvv_lva[get_move_piece(move)][target_piece];
+    } else { // quiet move
+        return 0;
+    }
+
+    return 0;
+}
+
+void sort_moves(Moves* move_list, Board* board) {
+    int move_scores[move_list->count];
+    for(int i = 0; i < move_list->count; i++) {
+        move_scores[i] = score_move(move_list->moves[i], board);
+    }
+
+    for(int current = 0; current < move_list->count; current++) {
+        for(int next = current + 1; next < move_list->count; next++) {
+            if(move_scores[current] < move_scores[next]) {
+                int temp = move_scores[current];
+                move_scores[current] = move_scores[next];
+                move_scores[next] = temp;
+
+                int temp_move = move_list->moves[current];
+                move_list->moves[current] = move_list->moves[next];
+                move_list->moves[next] = temp_move; 
+            }
+        }
+    }
+}
+
 int evaluate(Board* board) {
     int score = 0;
     uint64_t bitboard;
@@ -148,6 +228,8 @@ int evaluate(Board* board) {
 }
 
 int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta) {
+    nodes++; 
+    
     int eval = evaluate(board);
     if(eval >= beta) {
         return beta;
@@ -159,6 +241,8 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
     Moves move_list[1];
     init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
+
+    sort_moves(move_list, board);
 
     for(int count = 0; count < move_list->count; count++) {
         copy_board(board);
@@ -187,6 +271,7 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
 
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth) {
     if(depth == 0) {
+        // extends search tree to the point where the state has a good score
         return quiescence(board, leaper_masks, slider_masks, alpha, beta);
         //return evaluate(board);
     }
@@ -207,10 +292,17 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         }
     }
 
+    // increase search depth if the king has been exposed into the check
+    if(in_check) {
+        depth++;
+    }
+
 
     Moves move_list[1];
     init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
+
+    sort_moves(move_list, board);
 
     int best_move_sofar = 0;
     int old_alpha = alpha;
@@ -256,4 +348,16 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
     }
 
     return alpha;
+}
+
+
+
+// -----------
+void print_move_scores(Moves* move_list, Board* board) {
+    // debugging purpose
+    // to see if sort move function works correcly
+    for(int i = 0; i < move_list->count; i++) {
+        print_move(move_list->moves[i]);
+        printf("move score: %d\n\n", score_move(move_list->moves[i], board));
+    }
 }
