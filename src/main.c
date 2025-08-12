@@ -5,7 +5,7 @@
 #include "move_generator.h"
 #include "uci.h"
 #include "negamax.h"
-//#include "perft.h"
+// #include "perft.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,10 +22,13 @@ int main() {
     int debug = 1;
     if(debug) {
         // debug code
-        parse_fen(tricky_position, board);
+        parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ", board);
         print_board(board);
         
-        search_position(1, board, leaper_masks, slider_masks);
+        //perft_test(4, board, leaper_masks, slider_masks);
+
+
+        search_position(5, board, leaper_masks, slider_masks);
         //Moves mv[1];
         //init_move_list(mv);
         //generate_moves(board, leaper_masks, slider_masks, mv);

@@ -117,8 +117,12 @@ int mvv_lva[12][12] = {
 	{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600}
 };
 
+int killer_moves[2][64];
+int history_moves[12][64];
+
 int score_move(int move, Board* board) {
     if(get_move_capture(move)) {
+        // captures scores with mvv_lva
         int target_piece = P; // if it isnt initialized en passant wont work, because doesnt containe the piiece on the square
         int target_square = get_move_target(move);
 
@@ -138,8 +142,21 @@ int score_move(int move, Board* board) {
             }
         }
 
-        return mvv_lva[get_move_piece(move)][target_piece];
+        return mvv_lva[get_move_piece(move)][target_piece] + CAPTURE_MOVE_SCORE;
     } else { // quiet move
+        // score 1st killer move
+        if(killer_moves[0][ply] == move) {
+            return KILLER_MOVE_SCORE_1;
+        }
+        // score 2nd killer move
+        else if(killer_moves[1][ply] == move) {
+            return KILLER_MOVE_SCORE_2;
+        }
+        else  {
+            return history_moves[get_move_piece(move)][get_move_target(move)];
+        }
+        // score history move
+
         return 0;
     }
 
@@ -322,10 +339,17 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         ply--;
 
         if(score >= beta) {
+            // store killer moves
+            killer_moves[1][ply] = killer_moves[0][ply];
+            killer_moves[0][ply] = move_list->moves[count];
+
             return beta;
         }
 
         if(score > alpha) {
+            // store history moves
+            history_moves[get_move_piece(move_list->moves[count])][get_move_target(move_list->moves[count])] += depth;
+
             alpha = score;
 
             if(ply == 0) {

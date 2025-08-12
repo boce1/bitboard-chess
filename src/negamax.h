@@ -19,8 +19,15 @@ extern const int mirror_score[128];
 #define ALPHA -50000
 #define BETA 50000
 
+#define KILLER_MOVE_SCORE_1 9000
+#define KILLER_MOVE_SCORE_2 8000
+#define CAPTURE_MOVE_SCORE 10000
+
+
 extern int ply; // half move counter
 extern int best_move; // placeholder, remove later
+extern int killer_moves[2][64];
+extern int history_moves[12][64];
 
 int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta);
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth);
