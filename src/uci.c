@@ -18,7 +18,7 @@ int parse_move(char* move_string, Board* board, leaper_moves_masks* leaper_masks
 
             if(promoted_piece) {
                 if((promoted_piece == Q || promoted_piece == q) && move_string[4] == 'q') {
-                return move;
+                    return move;
                 }
                 else if((promoted_piece == R || promoted_piece == r) && move_string[4] == 'r') {
                     return move;
@@ -152,8 +152,16 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 
 void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     int score = negamax(board, leaper_masks, slider_masks, ALPHA, BETA, depth);
-    int source_square = get_move_source(best_move);
-    int target_square = get_move_target(best_move);
-    printf("info score cp %d depth %d nodes %ld\n", score, depth, nodes);
+    // int source_square = get_move_source(best_move);
+    // int target_square = get_move_target(best_move);
+    int source_square = get_move_source(pv_table[0][0]);
+    int target_square = get_move_target(pv_table[0][0]);
+
+    printf("info score cp %d depth %d nodes %ld pv ", score, depth, nodes);
+    for(int i = 0; i < pv_lenght[0]; i++) {
+        printf("%s%s ", square_to_cordinates[get_move_source(pv_table[0][i])],
+                        square_to_cordinates[get_move_target(pv_table[0][i])]);
+    }
+    printf("\n");
     printf("bestmove %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);    
 }

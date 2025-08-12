@@ -1,7 +1,6 @@
 #include "negamax.h"
 
 int ply = 0; // half move counter
-int best_move = 0;
 
 const int material_score[12] = {
     100, // white pawn score
@@ -119,6 +118,9 @@ int mvv_lva[12][12] = {
 
 int killer_moves[2][64];
 int history_moves[12][64];
+
+int pv_lenght[64];
+int pv_table[64][64];
 
 int score_move(int move, Board* board) {
     if(get_move_capture(move)) {
@@ -287,10 +289,11 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
 }
 
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth) {
+    pv_lenght[ply] = ply;
+    
     if(depth == 0) {
         // extends search tree to the point where the state has a good score
         return quiescence(board, leaper_masks, slider_masks, alpha, beta);
-        //return evaluate(board);
     }
     nodes++; // will be used later to reduced search space
     int legal_moves = 0;
@@ -321,9 +324,6 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
     sort_moves(move_list, board);
 
-    int best_move_sofar = 0;
-    int old_alpha = alpha;
-
     for(int count = 0; count < move_list->count; count++) {
         copy_board(board);
         ply++;
@@ -339,22 +339,33 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         ply--;
 
         if(score >= beta) {
+            if(get_move_capture(move_list->moves[count]) == 0) {
+                killer_moves[1][ply] = killer_moves[0][ply];
+                killer_moves[0][ply] = move_list->moves[count];
+            }
             // store killer moves
-            killer_moves[1][ply] = killer_moves[0][ply];
-            killer_moves[0][ply] = move_list->moves[count];
 
             return beta;
         }
 
         if(score > alpha) {
+            if(get_move_capture(move_list->moves[count]) == 0) {
+                history_moves[get_move_piece(move_list->moves[count])][get_move_target(move_list->moves[count])] += depth;
+            }
             // store history moves
-            history_moves[get_move_piece(move_list->moves[count])][get_move_target(move_list->moves[count])] += depth;
 
             alpha = score;
 
-            if(ply == 0) {
-                best_move_sofar = move_list->moves[count];
+            // write PV mvoe
+            pv_table[ply][ply] = move_list->moves[count];
+
+            // copy move from deeper ply into a current plys line
+            for(int next_ply = ply + 1; next_ply < pv_lenght[ply+1]; next_ply++) {
+                pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
             }
+
+            pv_lenght[ply] = pv_lenght[ply + 1]; 
+
         }
     }
 
@@ -365,10 +376,6 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
             // stalemate
             return 0;
         }
-    }
-
-    if(old_alpha != alpha) {
-        best_move = best_move_sofar;
     }
 
     return alpha;
