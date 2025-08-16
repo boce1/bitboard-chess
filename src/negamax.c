@@ -1,7 +1,5 @@
 #include "negamax.h"
 
-int ply = 0; // half move counter
-
 const int material_score[12] = {
     100, // white pawn score
     300, // white knight score
@@ -100,7 +98,7 @@ const int mirror_score[128] = {
 */
 
 // MVV LVA [attacker][victim]
-int mvv_lva[12][12] = {
+int const mvv_lva[12][12] = {
  	{105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
 	{104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604},
 	{103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603},
@@ -116,13 +114,39 @@ int mvv_lva[12][12] = {
 	{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600}
 };
 
-int killer_moves[2][64];
-int history_moves[12][64];
+void init_search_heuristics(search_heuristics* data) {
+    /*
+        int ply;
+        int pv_lenght[64];
+        int pv_table[64][64];
+        int killer_moves[2][64];
+        int history_moves[12][64];
+    */
+    data->ply = 0;
+    data->nodes = 0;
+    int i, j;
+    for(i = 0; i < 64; i++) {
+        data->pv_lenght[i] = 0;
+    }
+    for(i = 0; i < 64; i++) {
+        for(j = 0; j < 64; j++) {
+            data->pv_table[i][j] = 0;
+        }
+    }
+    for(i = 0; i < 2; i++) {
+        for(j = 0; j < 64; j++) {
+            data->pv_table[i][j] = 0;
+        }
+    }
+    for(i = 0; i < 12; i++) {
+        for(j = 0; j < 64; j++) {
+            data->pv_table[i][j] = 0;
+        }
+    }
 
-int pv_lenght[64];
-int pv_table[64][64];
+}
 
-int score_move(int move, Board* board) {
+int score_move(int move, Board* board, search_heuristics* search_data) {
     if(get_move_capture(move)) {
         // captures scores with mvv_lva
         int target_piece = P; // if it isnt initialized en passant wont work, because doesnt containe the piiece on the square
@@ -147,15 +171,15 @@ int score_move(int move, Board* board) {
         return mvv_lva[get_move_piece(move)][target_piece] + CAPTURE_MOVE_SCORE;
     } else { // quiet move
         // score 1st killer move
-        if(killer_moves[0][ply] == move) {
+        if(search_data->killer_moves[0][search_data->ply] == move) {
             return KILLER_MOVE_SCORE_1;
         }
         // score 2nd killer move
-        else if(killer_moves[1][ply] == move) {
+        else if(search_data->killer_moves[1][search_data->ply] == move) {
             return KILLER_MOVE_SCORE_2;
         }
         else  {
-            return history_moves[get_move_piece(move)][get_move_target(move)];
+            return search_data->history_moves[get_move_piece(move)][get_move_target(move)];
         }
         // score history move
 
@@ -165,10 +189,10 @@ int score_move(int move, Board* board) {
     return 0;
 }
 
-void sort_moves(Moves* move_list, Board* board) {
+void sort_moves(Moves* move_list, Board* board, search_heuristics* search_data) {
     int move_scores[move_list->count];
     for(int i = 0; i < move_list->count; i++) {
-        move_scores[i] = score_move(move_list->moves[i], board);
+        move_scores[i] = score_move(move_list->moves[i], board, search_data);
     }
 
     for(int current = 0; current < move_list->count; current++) {
@@ -246,8 +270,8 @@ int evaluate(Board* board) {
     return 0;
 }
 
-int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta) {
-    nodes++; 
+int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta) {
+    search_data->nodes++; 
     
     int eval = evaluate(board);
     if(eval >= beta) {
@@ -261,19 +285,19 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
     init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
 
-    sort_moves(move_list, board);
+    sort_moves(move_list, board, search_data);
 
     for(int count = 0; count < move_list->count; count++) {
         copy_board(board);
-        ply++;
+        search_data->ply++;
         if(make_move(board, move_list->moves[count], only_captures, leaper_masks, slider_masks) == 0) {
-            ply--;
+            search_data->ply--;
             continue;
         }
 
-        int score = -quiescence(board, leaper_masks, slider_masks, -beta, -alpha);
+        int score = -quiescence(board, leaper_masks, slider_masks, search_data, -beta, -alpha);
         take_back(board);
-        ply--;
+        search_data->ply--;
 
         if(score >= beta){
             return beta;
@@ -288,14 +312,14 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
     return alpha;
 }
 
-int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth) {
-    pv_lenght[ply] = ply;
+int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta, int depth) {
+    search_data->pv_lenght[search_data->ply] = search_data->ply;
     
     if(depth == 0) {
         // extends search tree to the point where the state has a good score
-        return quiescence(board, leaper_masks, slider_masks, alpha, beta);
+        return quiescence(board, leaper_masks, slider_masks, search_data, alpha, beta);
     }
-    nodes++; // will be used later to reduced search space
+    search_data->nodes++; // will be used later to reduced search space
     int legal_moves = 0;
 
     int in_check = 0;
@@ -322,26 +346,26 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
     init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
 
-    sort_moves(move_list, board);
+    sort_moves(move_list, board, search_data);
 
     for(int count = 0; count < move_list->count; count++) {
         copy_board(board);
-        ply++;
+        search_data->ply++;
         if(make_move(board, move_list->moves[count], all_moves, leaper_masks, slider_masks) == 0) {
-            ply--;
+            search_data->ply--;
             continue;
         }
 
         legal_moves++;
 
-        int score = -negamax(board, leaper_masks, slider_masks, -beta, -alpha, depth-1);
+        int score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
         take_back(board);
-        ply--;
+        search_data->ply--;
 
         if(score >= beta) {
             if(get_move_capture(move_list->moves[count]) == 0) {
-                killer_moves[1][ply] = killer_moves[0][ply];
-                killer_moves[0][ply] = move_list->moves[count];
+                search_data->killer_moves[1][search_data->ply] = search_data->killer_moves[0][search_data->ply];
+                search_data->killer_moves[0][search_data->ply] = move_list->moves[count];
             }
             // store killer moves
 
@@ -350,28 +374,28 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
         if(score > alpha) {
             if(get_move_capture(move_list->moves[count]) == 0) {
-                history_moves[get_move_piece(move_list->moves[count])][get_move_target(move_list->moves[count])] += depth;
+                search_data->history_moves[get_move_piece(move_list->moves[count])][get_move_target(move_list->moves[count])] += depth;
             }
             // store history moves
 
             alpha = score;
 
             // write PV mvoe
-            pv_table[ply][ply] = move_list->moves[count];
+            search_data->pv_table[search_data->ply][search_data->ply] = move_list->moves[count];
 
             // copy move from deeper ply into a current plys line
-            for(int next_ply = ply + 1; next_ply < pv_lenght[ply+1]; next_ply++) {
-                pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
+            for(int next_ply = search_data->ply + 1; next_ply < search_data->pv_lenght[search_data->ply+1]; next_ply++) {
+                search_data->pv_table[search_data->ply][next_ply] = search_data->pv_table[search_data->ply + 1][next_ply];
             }
 
-            pv_lenght[ply] = pv_lenght[ply + 1]; 
+            search_data->pv_lenght[search_data->ply] = search_data->pv_lenght[search_data->ply + 1]; 
 
         }
     }
 
     if(legal_moves == 0) {
         if(in_check) { // mating score assuming closest distance to mating position
-            return ALPHA + 1 + ply;
+            return ALPHA + 1 + search_data->ply;
         } else {
             // stalemate
             return 0;
@@ -384,11 +408,11 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
 
 // -----------
-void print_move_scores(Moves* move_list, Board* board) {
+void print_move_scores(Moves* move_list, Board* board, search_heuristics* search_data) {
     // debugging purpose
     // to see if sort move function works correcly
     for(int i = 0; i < move_list->count; i++) {
         print_move(move_list->moves[i]);
-        printf("move score: %d\n\n", score_move(move_list->moves[i], board));
+        printf("move score: %d\n\n", score_move(move_list->moves[i], board, search_data));
     }
 }

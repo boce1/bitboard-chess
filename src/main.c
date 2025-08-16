@@ -19,6 +19,9 @@ int main() {
     Board board[1];
     init_board(board);
 
+    search_heuristics search_data[1];
+    init_search_heuristics(search_data);
+
     int debug = 0;
     if(debug) {
         // debug code
@@ -28,7 +31,7 @@ int main() {
         //perft_test(4, board, leaper_masks, slider_masks);
 
 
-        search_position(5, board, leaper_masks, slider_masks);
+        search_position(5, board, leaper_masks, slider_masks, search_data);
         //Moves mv[1];
         //init_move_list(mv);
         //generate_moves(board, leaper_masks, slider_masks, mv);
@@ -37,7 +40,7 @@ int main() {
         //print_move_scores(mv, board);        
         //printf("score %d\n", evaluate(board));
     } else {
-        uci_loop(board, leaper_masks, slider_masks);
+        uci_loop(board, leaper_masks, slider_masks, search_data);
     }
     
     //free(board); 

@@ -47,25 +47,30 @@ extern const int mirror_score[128];
     when the ply is 2 negamax must be able to find g1f3, b8c6, f1b5
 */
 
-extern int pv_lenght[64]; // stores the ply where the PV nodes end
-extern int pv_table[64][64];
+typedef struct {
+    int ply;
+    int pv_lenght[64]; // stores the ply where the PV nodes end
+    int pv_table[64][64];
+    int killer_moves[2][64];
+    int history_moves[12][64];
+    long nodes;
 
-extern int ply; // half move counter
-extern int killer_moves[2][64];
-extern int history_moves[12][64];
+} search_heuristics;
 
-int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta);
-int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, int alpha, int beta, int depth);
+void init_search_heuristics(search_heuristics* search_data);
+
+int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta);
+int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta, int depth);
 
 int evaluate(Board* board);
 
 // move ordering
 
 // most valuable victim least valuable attacker
-extern int mvv_lva[12][12];
+extern const int mvv_lva[12][12];
 
-int score_move(int move, Board* board);
-void sort_moves(Moves* move_list, Board* board);
-void print_move_scores(Moves* move_list, Board* board);
+int score_move(int move, Board* board, search_heuristics* search_data);
+void sort_moves(Moves* move_list, Board* board, search_heuristics* search_data);
+void print_move_scores(Moves* move_list, Board* board, search_heuristics* search_data);
 
 #endif

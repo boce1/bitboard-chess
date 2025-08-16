@@ -87,14 +87,14 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
 }
 
 
-void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
+void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
     // go depth n
     int depth = 3;
     char* current_char = NULL;
     if((current_char = strstr(command, "depth"))) {
         depth = atoi(current_char + 6); // "depth "
     } 
-    search_position(depth, board, leaper_masks, slider_masks);
+    search_position(depth, board, leaper_masks, slider_masks, search_data);
 }
 
 /*
@@ -103,7 +103,7 @@ GUI - isready
 Engine - readyok
 GUI - ucinewgame
 */
-void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
+void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
 
@@ -135,7 +135,7 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
             parse_position("position startpos", board, leaper_masks, slider_masks);
         }
         else if(strncmp(input, "go", 2) == 0) {
-            parse_go(input, board, leaper_masks, slider_masks);
+            parse_go(input, board, leaper_masks, slider_masks, search_data);
         }
         else if(strncmp(input, "quit", 4) == 0) {
             break;
@@ -150,17 +150,17 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 
 }
 
-void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
-    int score = negamax(board, leaper_masks, slider_masks, ALPHA, BETA, depth);
+void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
+    int score = negamax(board, leaper_masks, slider_masks, search_data, ALPHA, BETA, depth);
     // int source_square = get_move_source(best_move);
     // int target_square = get_move_target(best_move);
-    int source_square = get_move_source(pv_table[0][0]);
-    int target_square = get_move_target(pv_table[0][0]);
+    int source_square = get_move_source(search_data->pv_table[0][0]);
+    int target_square = get_move_target(search_data->pv_table[0][0]);
 
-    printf("info score cp %d depth %d nodes %ld pv ", score, depth, nodes);
-    for(int i = 0; i < pv_lenght[0]; i++) {
-        printf("%s%s ", square_to_cordinates[get_move_source(pv_table[0][i])],
-                        square_to_cordinates[get_move_target(pv_table[0][i])]);
+    printf("info score cp %d depth %d nodes %ld pv ", score, depth, search_data->nodes);
+    for(int i = 0; i < search_data->pv_lenght[0]; i++) {
+        printf("%s%s ", square_to_cordinates[get_move_source(search_data->pv_table[0][i])],
+                        square_to_cordinates[get_move_target(search_data->pv_table[0][i])]);
     }
     printf("\n");
     printf("bestmove %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);    
