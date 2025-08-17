@@ -37,8 +37,11 @@ make debug
 
 ## Credits
 This project is inspired by and follows the tutorial series from Maksim Korzh.
+
 Youtube series: https://youtube.com/playlist?list=PLmN0neTso3Jxh8ZIylk74JpwfiWNI76Cs&si=Sd3jy2bCRtksQ3oJ
+
 Github repo of his engine: https://github.com/maksimKorzh/bbc.git
+
 Chessprogramming wiki: https://www.chessprogramming.org/Maksim_Korzh
 
 
