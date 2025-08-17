@@ -22,7 +22,7 @@ int main() {
     search_heuristics search_data[1];
     init_search_heuristics(search_data);
 
-    int debug = 0;
+    int debug = 1;
     if(debug) {
         // debug code
         parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ", board);
@@ -31,7 +31,7 @@ int main() {
         //perft_test(4, board, leaper_masks, slider_masks);
 
 
-        search_position(5, board, leaper_masks, slider_masks, search_data);
+        search_position(6, board, leaper_masks, slider_masks, search_data);
         //Moves mv[1];
         //init_move_list(mv);
         //generate_moves(board, leaper_masks, slider_masks, mv);

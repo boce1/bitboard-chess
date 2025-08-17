@@ -22,6 +22,7 @@ extern const int mirror_score[128];
 #define KILLER_MOVE_SCORE_1 9000
 #define KILLER_MOVE_SCORE_2 8000
 #define CAPTURE_MOVE_SCORE 10000
+#define MAX_PLY 64
 
 // Trianglular PV table (principle variation)
 // Principle variation is a move that lies along the best line of play found during the search
@@ -49,10 +50,10 @@ extern const int mirror_score[128];
 
 typedef struct {
     int ply;
-    int pv_lenght[64]; // stores the ply where the PV nodes end
-    int pv_table[64][64];
-    int killer_moves[2][64];
-    int history_moves[12][64];
+    int pv_lenght[MAX_PLY]; // stores the ply where the PV nodes end
+    int pv_table[MAX_PLY][MAX_PLY];
+    int killer_moves[2][MAX_PLY];
+    int history_moves[12][64]; // [piece][sqaure]
     long nodes;
 
 } search_heuristics;

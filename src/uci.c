@@ -89,7 +89,7 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
 
 void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
     // go depth n
-    int depth = 3;
+    int depth = 6;
     char* current_char = NULL;
     if((current_char = strstr(command, "depth"))) {
         depth = atoi(current_char + 6); // "depth "
@@ -151,17 +151,23 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 }
 
 void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
-    int score = negamax(board, leaper_masks, slider_masks, search_data, ALPHA, BETA, depth);
-    // int source_square = get_move_source(best_move);
-    // int target_square = get_move_target(best_move);
+    // clear helper data structure for search
+    init_search_heuristics(search_data);
+
+    for(int current_depth = 1; current_depth <= depth; current_depth++) {
+        int score = negamax(board, leaper_masks, slider_masks, search_data, ALPHA, BETA, current_depth);      
+
+        printf("info score cp %d depth %d nodes %ld pv ", score, current_depth, search_data->nodes);
+        for(int i = 0; i < search_data->pv_lenght[0]; i++) {
+            printf("%s%s ", square_to_cordinates[get_move_source(search_data->pv_table[0][i])],
+                            square_to_cordinates[get_move_target(search_data->pv_table[0][i])]);
+        }
+        printf("\n");
+    }
+
     int source_square = get_move_source(search_data->pv_table[0][0]);
     int target_square = get_move_target(search_data->pv_table[0][0]);
-
-    printf("info score cp %d depth %d nodes %ld pv ", score, depth, search_data->nodes);
-    for(int i = 0; i < search_data->pv_lenght[0]; i++) {
-        printf("%s%s ", square_to_cordinates[get_move_source(search_data->pv_table[0][i])],
-                        square_to_cordinates[get_move_target(search_data->pv_table[0][i])]);
-    }
-    printf("\n");
+    
+    //printf("\n");
     printf("bestmove %s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);    
 }

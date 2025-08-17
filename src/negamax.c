@@ -115,35 +115,12 @@ int const mvv_lva[12][12] = {
 };
 
 void init_search_heuristics(search_heuristics* data) {
-    /*
-        int ply;
-        int pv_lenght[64];
-        int pv_table[64][64];
-        int killer_moves[2][64];
-        int history_moves[12][64];
-    */
     data->ply = 0;
     data->nodes = 0;
-    int i, j;
-    for(i = 0; i < 64; i++) {
-        data->pv_lenght[i] = 0;
-    }
-    for(i = 0; i < 64; i++) {
-        for(j = 0; j < 64; j++) {
-            data->pv_table[i][j] = 0;
-        }
-    }
-    for(i = 0; i < 2; i++) {
-        for(j = 0; j < 64; j++) {
-            data->pv_table[i][j] = 0;
-        }
-    }
-    for(i = 0; i < 12; i++) {
-        for(j = 0; j < 64; j++) {
-            data->pv_table[i][j] = 0;
-        }
-    }
-
+    memset(data->pv_lenght, 0, sizeof(data->pv_lenght));
+    memset(data->pv_table, 0, sizeof(data->pv_table));
+    memset(data->killer_moves, 0, sizeof(data->killer_moves));
+    memset(data->history_moves, 0, sizeof(data->history_moves));
 }
 
 int score_move(int move, Board* board, search_heuristics* search_data) {
@@ -319,6 +296,10 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         // extends search tree to the point where the state has a good score
         return quiescence(board, leaper_masks, slider_masks, search_data, alpha, beta);
     }
+    if(search_data->ply >= MAX_PLY) {
+        return evaluate(board);
+    }
+
     search_data->nodes++; // will be used later to reduced search space
     int legal_moves = 0;
 
