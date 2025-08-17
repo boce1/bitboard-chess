@@ -117,6 +117,8 @@ int const mvv_lva[12][12] = {
 void init_search_heuristics(search_heuristics* data) {
     data->ply = 0;
     data->nodes = 0;
+    data->follow_pv = 0; 
+    data->score_pv = 0;
     memset(data->pv_lenght, 0, sizeof(data->pv_lenght));
     memset(data->pv_table, 0, sizeof(data->pv_table));
     memset(data->killer_moves, 0, sizeof(data->killer_moves));
@@ -124,6 +126,13 @@ void init_search_heuristics(search_heuristics* data) {
 }
 
 int score_move(int move, Board* board, search_heuristics* search_data) {
+    if(search_data->score_pv) {
+        if(search_data->pv_table[0][search_data->ply] == move) {
+            search_data->score_pv = 0;
+            return PV_MOVE_SCORE;
+        }
+    }
+
     if(get_move_capture(move)) {
         // captures scores with mvv_lva
         int target_piece = P; // if it isnt initialized en passant wont work, because doesnt containe the piiece on the square
@@ -183,6 +192,17 @@ void sort_moves(Moves* move_list, Board* board, search_heuristics* search_data) 
                 move_list->moves[current] = move_list->moves[next];
                 move_list->moves[next] = temp_move; 
             }
+        }
+    }
+}
+
+void enable_pv_scoring(Moves* move_list, search_heuristics* search_data) {
+    search_data->follow_pv = 0;
+    
+    for(int count = 0; count < move_list->count; count++) {
+        if(search_data->pv_table[0][search_data->ply] == move_list->moves[count]) {
+            search_data->score_pv = 1;
+            search_data->follow_pv = 1;
         }
     }
 }
@@ -326,6 +346,10 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
     Moves move_list[1];
     init_move_list(move_list);
     generate_moves(board, leaper_masks, slider_masks, move_list);
+
+    if(search_data->follow_pv) { // if principle variation line is followed
+        enable_pv_scoring(move_list, search_data);
+    }
 
     sort_moves(move_list, board, search_data);
 

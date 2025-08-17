@@ -22,6 +22,7 @@ extern const int mirror_score[128];
 #define KILLER_MOVE_SCORE_1 9000
 #define KILLER_MOVE_SCORE_2 8000
 #define CAPTURE_MOVE_SCORE 10000
+#define PV_MOVE_SCORE 20000
 #define MAX_PLY 64
 
 // Trianglular PV table (principle variation)
@@ -50,6 +51,8 @@ extern const int mirror_score[128];
 
 typedef struct {
     int ply;
+    int follow_pv; // if the current principle variation line is followed
+    int score_pv;
     int pv_lenght[MAX_PLY]; // stores the ply where the PV nodes end
     int pv_table[MAX_PLY][MAX_PLY];
     int killer_moves[2][MAX_PLY];
@@ -65,11 +68,10 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
 int evaluate(Board* board);
 
-// move ordering
-
 // most valuable victim least valuable attacker
 extern const int mvv_lva[12][12];
 
+void enable_pv_scoring(Moves* move_list, search_heuristics* search_data);
 int score_move(int move, Board* board, search_heuristics* search_data);
 void sort_moves(Moves* move_list, Board* board, search_heuristics* search_data);
 void print_move_scores(Moves* move_list, Board* board, search_heuristics* search_data);
