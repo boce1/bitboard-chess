@@ -1,7 +1,5 @@
 # Bitboard Chess Engine
 
----
-
 ## Features
 
 - **Bitboard Representation** – Fast move generation and board manipulation using 64-bit integers.  
@@ -12,8 +10,6 @@
 - **Evaluation Function** – Basic material + positional evaluation (can be extended).  
 - **UCI Protocol** – Communicates with GUIs like **Arena**, **CuteChess**, or **lichess-bot**.  
 - **Perft Testing** – Verify correctness of move generation.  
-
----
 
 ## Build Instructions
 ### Requirements
@@ -39,15 +35,11 @@ make debug
 ./bin/bitboard_chess_debug
 ```
 
----
-
 ## Credits
 This project is inspired by and follows the tutorial series from Maksim Korzh.
-
 Youtube series: https://youtube.com/playlist?list=PLmN0neTso3Jxh8ZIylk74JpwfiWNI76Cs&si=Sd3jy2bCRtksQ3oJ
-
 Github repo of his engine: https://github.com/maksimKorzh/bbc.git
-
+Chessprogramming wiki: https://www.chessprogramming.org/Maksim_Korzh
 
 
 
