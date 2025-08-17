@@ -46,3 +46,10 @@ Chessprogramming wiki: https://www.chessprogramming.org/Maksim_Korzh
 
 
 
+## Running the engine
+This engine works with UCI protocol and every GUI that supports UCI can start the bot. The most popular GUI for chess engines are:
+- Arena
+- Lucas Chess
+- Tarrasch
+- Cute Chess
+
