@@ -156,7 +156,6 @@ void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, 
 
     for(int current_depth = 1; current_depth <= depth; current_depth++) {
         search_data->follow_pv = 1;
-        search_data->nodes = 0;
 
         int score = negamax(board, leaper_masks, slider_masks, search_data, ALPHA, BETA, current_depth);      
 

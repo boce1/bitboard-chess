@@ -203,6 +203,7 @@ void enable_pv_scoring(Moves* move_list, search_heuristics* search_data) {
         if(search_data->pv_table[0][search_data->ply] == move_list->moves[count]) {
             search_data->score_pv = 1;
             search_data->follow_pv = 1;
+            break;
         }
     }
 }
@@ -310,6 +311,9 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
 }
 
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta, int depth) {
+    int score;
+    int found_pv = 0;
+    
     search_data->pv_lenght[search_data->ply] = search_data->ply;
     
     if(depth == 0) {
@@ -363,7 +367,16 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
         legal_moves++;
 
-        int score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+        if(found_pv) {
+            score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha - 1, -alpha, depth-1);
+            if(score > alpha && score < beta) {
+                score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+            }
+        } else {
+            score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+        }
+
+
         take_back(board);
         search_data->ply--;
 
@@ -384,7 +397,7 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
             // store history moves
 
             alpha = score;
-
+            found_pv = 1;
             // write PV mvoe
             search_data->pv_table[search_data->ply][search_data->ply] = move_list->moves[count];
 
