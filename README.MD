@@ -90,6 +90,7 @@ For sipmlicity and performance purposes moves are represented as unsigned 32bit 
 - piece and promotion piece are encoded as 4 bits each, representing the 12 pieces
 - capture flag, double push flag, enpassant flag, castling flag are encoded as 1 bit each
 - total size of the move is 6 + 6 + 4 + 4 + 1 + 1 + 1 + 1 = 24 bits (3 bytes)
+
 | Binary Representation         | Description             | Hex Value  |
 |-------------------------------|-------------------------|------------|
 | `0000 0000 0000 0000 0011 1111` | Source square mask      | `0x3f`     |
