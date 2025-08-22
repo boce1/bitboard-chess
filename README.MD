@@ -6,12 +6,12 @@
 - [**Move Generation**](#move-generation) – Legal and pseudo-legal moves for all pieces.  
 - [**Negamax Search**](#negamax) – Implements the negamax variant of minimax with alpha-beta pruning.  
 - [**Quiescence Search**](#quiescence-search) – Extends leaf nodes to reduce the horizon effect.  
-- **Move Ordering** – Includes killer moves, history heuristics, and principal variation (PV) search.  
+- [**Move Ordering**](#move-ordering) – Includes killer moves, history heuristics, and principal variation (PV) search.  
 - [**Evaluation Function**](#evaluation) – Basic material + positional evaluation (can be extended).  
-- **UCI Protocol** – Communicates with GUIs like **Arena**, **CuteChess**, or **lichess-bot**.  
-- **Perft Testing** – Verify correctness of move generation.  
+- [**UCI Protocol**](#uci-protocol) – Communicates with GUIs like **Arena**, **CuteChess**, or **lichess-bot**.  
+- [**Perft Testing**](#perft) – Verify correctness of move generation.  
 - **Principle variation search** - Improves the performance up to 10%
-
+- **Late move reduction**
 ## Build Instructions
 ### Requirements
 - GCC compiller
@@ -48,7 +48,15 @@ make debug
 4. Magic numbers and magic bitboard for move generation
 - TimosPal, repo: https://github.com/TimosPal/NNUE-Bitboard-Chess-Engine
 - Chess programming wiki: https://www.chessprogramming.org/Magic_Bitboards
-
+5. The PV table implementation if from TSCP chess engine
+- https://www.chessprogramming.org/TSCP
+- https://www.tckerrigan.com/Chess/TSCP/
+6. UCI protocol
+- https://www.chessprogramming.org/UCI
+7. FEN
+- https://www.chess.com/terms/fen-chess
+8. Late move reduction
+- https://web.archive.org/web/20150212051846/http://www.glaurungchess.com/lmr.html
 ## Running the engine
 This engine works with UCI protocol and every GUI that supports UCI can start the bot. The most popular GUI for chess engines are:
 - Arena
@@ -122,7 +130,7 @@ new_castling_rights = castling_rights & move_update
 Moves are stored in move list structure that constains count of moves at the given positon and array of ints with size of 256 (maxumum numbers of moves at the most complex position).
 
 # Negamax
-For more detailed explanation check the [MIT lecture for Minimax and Lague's youtube video](#references).
+For more detailed explanation check the [links for Minimax in the Reference section](#references).
 
 Negamax is version of minimax where instead of having two separate function for minimazing and maximazing there's only one function that flips the sign of the score. ```max(score) = -min(-score)```. Intuition is what is good for the opponent is bad for me and vice versa.
 Alpa-beta prunning is technic that cuts off branches where it's sure the opponent won't go that path. The branches that we know are uselles to visit, recursive negamax call isnt done on them. 
@@ -146,4 +154,35 @@ Quiescence search is technique used in game tree search to reduce the horizon ef
 
 Horion effect happens when the search algorithm cannot see far enough ahead due to limited depth and therefore delays recognizing an inevitable bad event as if the event is "just beyond the horizon".
 
-# Add killer moves, history moves,pv, pv search, 
+# Move ordering
+Move ordering is the technique that sort generated moves based on points. How much point move gets depends how good the move is. If the move is killer move or is in history moves or is PV node or makes more material score then gets the most points and its sorted at the begging of the move_list array. Putting the good moves first makes negamax search more likely to prune bigger parts of the tree and that makes search faster and more efficient.
+
+### Movest valuable vicim - Least valuable attacker
+This heuristic prefers moves where the most valuable pieces (queen > rook > bishop / knight > pawn) are being captured by least valuable pieces. 
+### PV moves
+PV moves are moves that are on the best line of play for both players. In negamax thes move is being search first because it has the best chance for pruning the biggest part of the tree. For every half move counter the PV move is being saved and the PV moves from deeper depth are being coppied. The PV table structure is from [TSCP chess engine](#references).
+### History moves
+This heuristic that saves non-catpures moves for every piece that made cutoff previously. 
+### Killer moves
+Killer move is non-capture move that causes a beta cutoff at a given depth. For each depth there are 2 moves stored. 
+Engines store two killer moves per depth because:
+- One may overwrite the other (redundancy).
+- Different branches might have different strong quiet moves.
+- Two gives most of the benefit — more than two usually adds noise and slows things down.
+
+# UCI protocol
+[UCI (Universal Chess Interface)](#references) is communication protocol that is designed to work with GUIs. Supported commands by this engine:
+- ```parse startpos``` - puts the board in the starting position
+- ```parse fen``` ```__fen string__``` - change the board state based on the fen
+- ```parse fen``` ```__fen string__``` ```__move list__``` - change the board state based on the fen and makes the moves in the move list
+- ```go``` ```__depth__``` - searches for the best move at the given position. Does the negamax search at the specified depth. If the depth isnt specified, default depth is 6.
+- ```uci``` - test if the engine supports UCI protocol
+- ```quit``` - stops the engine
+-  ```ucinewgame``` - initialize the board the start position and starts the game
+
+### FEN
+Fen is standard notation for discribing the board. The rows are devided with "/", white pieces are represented as capital letters K - King, Q - Queen, B - Bishop, N - Kning, R - Rook, P - Pawn. For black pieces is the same except they are represented with lowercase letters. Empty square are represented with positive integer number wich tells how many consecutive empty square is there on the row. For more detail check the [FEN link in the reference section](#references).
+
+# PV search
+
+# PERFT

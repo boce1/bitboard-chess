@@ -25,6 +25,9 @@ extern const int mirror_score[128];
 #define PV_MOVE_SCORE 20000
 #define MAX_PLY 64
 
+#define FULL_DEPTH_MOVE 4
+#define REDUCED_DEPTH_MOVE 3
+
 // Trianglular PV table (principle variation)
 // Principle variation is a move that lies along the best line of play found during the search
 // The idea is storing the best moves and in the next negamax iteration first check them because they are good candidates for prunning
