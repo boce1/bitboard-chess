@@ -76,6 +76,8 @@ extern const int mvv_lva[12][12];
 
 void enable_pv_scoring(Moves* move_list, search_heuristics* search_data);
 int score_move(int move, Board* board, search_heuristics* search_data);
+void merge(Moves* move_list, int* move_scores, int left, int mid, int right);
+void merge_sort(Moves* move_list, int* move_scores, int left, int right);
 void sort_moves(Moves* move_list, Board* board, search_heuristics* search_data);
 void print_move_scores(Moves* move_list, Board* board, search_heuristics* search_data);
 

@@ -175,25 +175,67 @@ int score_move(int move, Board* board, search_heuristics* search_data) {
     return 0;
 }
 
+void merge(Moves* move_list, int* move_scores, int left, int mid, int right) {
+    int i, j, k;
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    int left_moves[n1], right_moves[n2];
+    int left_scores[n1], right_scores[n2];
+    
+    for(i = 0; i < n1; i++) {
+        left_moves[i] = move_list->moves[left + i];
+        left_scores[i] = move_scores[left + i];
+    }
+    for(j = 0; j < n2; j++) {
+        right_moves[j] = move_list->moves[mid + 1 + j];
+        right_scores[j] = move_scores[mid + 1 + j];
+    }
+    i = 0;
+    j = 0;
+    k = left;
+    while(i < n1 && j < n2) {
+        if(left_scores[i] >= right_scores[j]) {
+            move_list->moves[k] = left_moves[i];
+            move_scores[k] = left_scores[i];
+            i++;
+        } else {
+            move_list->moves[k] = right_moves[j];
+            move_scores[k] = right_scores[j];
+            j++;
+        }
+        k++;
+    }
+
+    while(i < n1) {
+        move_list->moves[k] = left_moves[i];
+        move_scores[k] = left_scores[i];
+        i++;
+        k++;
+    }
+    while(j < n2) {
+        move_list->moves[k] = right_moves[j];
+        move_scores[k] = right_scores[j];
+        j++;
+        k++;
+    }
+}
+
+void merge_sort(Moves* move_list, int* move_scores, int left, int right) {
+    if(left < right) {
+        int mid = left + (right - left) / 2;
+        merge_sort(move_list, move_scores, left, mid);
+        merge_sort(move_list, move_scores, mid + 1, right);
+        merge(move_list, move_scores, left, mid, right);
+    }
+}
+
 void sort_moves(Moves* move_list, Board* board, search_heuristics* search_data) {
     int move_scores[move_list->count];
     for(int i = 0; i < move_list->count; i++) {
         move_scores[i] = score_move(move_list->moves[i], board, search_data);
     }
 
-    for(int current = 0; current < move_list->count; current++) {
-        for(int next = current + 1; next < move_list->count; next++) {
-            if(move_scores[current] < move_scores[next]) {
-                int temp = move_scores[current];
-                move_scores[current] = move_scores[next];
-                move_scores[next] = temp;
-
-                int temp_move = move_list->moves[current];
-                move_list->moves[current] = move_list->moves[next];
-                move_list->moves[next] = temp_move; 
-            }
-        }
-    }
+    merge_sort(move_list, move_scores, 0, move_list->count - 1);
 }
 
 void enable_pv_scoring(Moves* move_list, search_heuristics* search_data) {

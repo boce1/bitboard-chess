@@ -29,15 +29,13 @@ int main() {
         print_board(board);
         
         //perft_test(4, board, leaper_masks, slider_masks);
+        // search_position(6, board, leaper_masks, slider_masks, search_data);
+        Moves mv[1];
+        init_move_list(mv);
+        generate_moves(board, leaper_masks, slider_masks, mv);
 
-
-        search_position(6, board, leaper_masks, slider_masks, search_data);
-        //Moves mv[1];
-        //init_move_list(mv);
-        //generate_moves(board, leaper_masks, slider_masks, mv);
-//
-        //sort_moves(mv, board);
-        //print_move_scores(mv, board);        
+        sort_moves(mv, board, search_data);
+        print_move_scores(mv, board, search_data);        
         //printf("score %d\n", evaluate(board));
     } else {
         uci_loop(board, leaper_masks, slider_masks, search_data);
