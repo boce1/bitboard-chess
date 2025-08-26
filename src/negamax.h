@@ -27,6 +27,7 @@ extern const int mirror_score[128];
 
 #define FULL_DEPTH_MOVE 4
 #define REDUCED_DEPTH_MOVE 3
+#define REDUCTION 2 // for null move pruning
 
 // Trianglular PV table (principle variation)
 // Principle variation is a move that lies along the best line of play found during the search

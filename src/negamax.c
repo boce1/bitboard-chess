@@ -389,9 +389,22 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         depth++;
     }
 
-
     Moves move_list[1];
     init_move_list(move_list);
+
+    // NULL MOVE PRUNING
+    if(depth >= REDUCTION + 1 && in_check == 0 && search_data->ply) { // dont do null move pruning if in check or at root node
+        copy_board(board);
+        board->side_to_move ^= 1; // switch side to move
+        board->en_passant_square = no_square; // cant do en passant after null move
+        score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -beta + 1, depth - REDUCTION - 1);
+        take_back(board);
+        if(score >= beta) {
+            return beta;
+        }
+    }
+    // ---------
+
     generate_moves(board, leaper_masks, slider_masks, move_list);
 
     if(search_data->follow_pv) { // if principle variation line is followed

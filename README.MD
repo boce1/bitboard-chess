@@ -10,8 +10,9 @@
 - [**Evaluation Function**](#evaluation) – Basic material + positional evaluation (can be extended).  
 - [**UCI Protocol**](#uci-protocol) – Communicates with GUIs like **Arena**, **CuteChess**, or **lichess-bot**.  
 - [**Perft Testing**](#perft) – Verify correctness of move generation.  
-- **Principle variation search** - Improves the performance up to 10%
-- **Late move reduction**
+- [**Principle variation search**](#pv-search) - Improves the performance up to 10%
+- [**Late move reduction**](#late-move-reduction)
+- [**Null move pruning**](#null-move-pruning)
 ## Build Instructions
 ### Requirements
 - GCC compiller
@@ -40,7 +41,8 @@ make debug
 1. This project is inspired by and follows the tutorial series from Maksim Korzh.
 - Youtube series: https://youtube.com/playlist?list=PLmN0neTso3Jxh8ZIylk74JpwfiWNI76Cs&si=Sd3jy2bCRtksQ3oJ
 - Github repo of his engine: https://github.com/maksimKorzh/bbc.git
-2. Principle Variation Search by Bruce Moreland: https://web.archive.org/web/20071030220825/http://www.brucemo.com/compchess/programming/pvs.htm#expand
+2. Principle Variation Search by Bruce Moreland: 
+- https://web.archive.org/web/20071030220825/http://www.brucemo.com/compchess/programming/pvs.htm#expand
 3. Manimax and alpha-beta prunning 
 - MIT OpenCourseWare: https://youtu.be/STjW3eH0Cik?si=kpKddQLv2FGQYds4
 - Sebastian Lague youtube video: https://www.youtube.com/watch?v=l-hh51ncgDI
@@ -57,6 +59,10 @@ make debug
 - https://www.chess.com/terms/fen-chess
 8. Late move reduction
 - https://web.archive.org/web/20150212051846/http://www.glaurungchess.com/lmr.html
+9. Perft
+- https://www.chessprogramming.org/Perft
+10. Null move pruning by Bruce Moreland
+- https://web.archive.org/web/20071031095933/http://www.brucemo.com/compchess/programming/nullmove.htm
 ## Running the engine
 This engine works with UCI protocol and every GUI that supports UCI can start the bot. The most popular GUI for chess engines are:
 - Arena
@@ -184,5 +190,10 @@ Engines store two killer moves per depth because:
 Fen is standard notation for discribing the board. The rows are devided with "/", white pieces are represented as capital letters K - King, Q - Queen, B - Bishop, N - Kning, R - Rook, P - Pawn. For black pieces is the same except they are represented with lowercase letters. Empty square are represented with positive integer number wich tells how many consecutive empty square is there on the row. For more detail check the [FEN link in the reference section](#references).
 
 # PV search
-
+The main idea behind [Principal Variation Search](#references) searching the PV nodes with full window search. Other nodes are being search with reduced window search. In the case that the move gives the score in alpha-beta region it mean that it hasnt failed low or failed high, wich mean the move might have been good. In that case that move is being search with full window search.
 # PERFT
+[PERFT (Performance Test)](#references) is debbuging function that tells how many leaf nodes move generator gives at the given position at the certain depth. Move generator of this engine passed PERFT. 
+# Late move reduction
+The engine searches the first few moves deeply, since they are the most prommising. For later, less prommising moves (late moves) the engine reduces the search window.
+# Null move pruning
+The main idea behing this tecnhique is if the current side skips the turn will the opponent make good move. It works because strongs position dont lose their value after one skipped move. If the opponent can make a good move then do regular negamax search, if not make a cutof. Null move pruning doesnt work with Zugzwang positions. Passing a move might actually make the position worse. For null move en passant is disabled, because doing en passant loses its right after not making it immidiently.
