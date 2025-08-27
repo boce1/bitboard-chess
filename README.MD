@@ -204,8 +204,8 @@ The engine searches the first few moves deeply, since they are the most prommisi
 The main idea behing this tecnhique is if the current side skips the turn will the opponent make good move. It works because strongs position dont lose their value after one skipped move. If the opponent can make a good move then do regular negamax search, if not make a cutof. Null move pruning doesnt work with Zugzwang positions. Passing a move might actually make the position worse. For null move en passant is disabled, because doing en passant loses its right after not making it immidiently.
 # Iterative deepening
 Iterative deepening (or iterative deepening depth-first search, IDDFS) is a technique where the engine searches the game tree repeatedly, increasing the search depth by one ply each time, until time runs out or the maximum depth is reached.
-1. Start with depth = 1 → run alpha-beta search.
-2. Increase depth = 2 → run alpha-beta search again.
+1. Start with depth = 1, run alpha-beta search.
+2. Increase depth = 2, run alpha-beta search again.
 3. Keep increasing depth until the allotted time is used.
 4. The best move found at the deepest completed depth is chosen.
 
