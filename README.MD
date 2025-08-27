@@ -56,6 +56,7 @@ make debug
 - https://www.tckerrigan.com/Chess/TSCP/
 6. UCI protocol
 - https://www.chessprogramming.org/UCI
+- Weiss chess engine by Richard Olbert: http://github.com/TerjeKir/weiss
 7. FEN
 - https://www.chess.com/terms/fen-chess
 8. Late move reduction

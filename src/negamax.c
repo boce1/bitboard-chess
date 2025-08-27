@@ -355,7 +355,6 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
 int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta, int depth) {
     int score;
     int moves_searched = 0; // moves seaarch in the move list 
-    int found_pv = 0;
     
     search_data->pv_lenght[search_data->ply] = search_data->ply;
     
@@ -423,38 +422,27 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
 
         legal_moves++;
 
-        // PV SEARCH
-        if(found_pv) {
-            score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha - 1, -alpha, depth-1);
-            if(score > alpha && score < beta) { 
-                score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
-            }
-        } else {
-            // LATE MOVE REDUCTION
-            if(moves_searched == 0) { // use full window for first move
-                score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+        if(moves_searched == 0) { // use full window for PV MOVE
+            score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+        } else { // LMR for non PV moves
+            if(moves_searched >= FULL_DEPTH_MOVE && depth >= REDUCED_DEPTH_MOVE 
+                && in_check == 0 
+                && get_move_capture(move_list->moves[count]) == 0 
+                && get_move_promoted(move_list->moves[count]) == 0) {
+                score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha -1, -alpha, depth - 2);
             } else {
-                if(moves_searched >= FULL_DEPTH_MOVE && depth >= REDUCED_DEPTH_MOVE 
-                    && in_check == 0 
-                    && get_move_capture(move_list->moves[count]) == 0 
-                    && get_move_promoted(move_list->moves[count]) == 0) {
-                    score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha -1, -alpha, depth - 2);
-                } else {
-                    score = alpha + 1; // set score to be higher than alpha to enter the if condition below
-                }
-
-                if(score > alpha) { // if LMR fails, search at normal depth and kept the score bandwidth
-                    score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha - 1, -alpha, depth-1);
-                    if(score > alpha && score < beta) { // if the move is good, search with full window and normal depth
-                        score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
-                    }
-                }
-                
+                score = alpha + 1; // set score to be higher than alpha to enter the if condition below
             }
-            
+
+            if(score > alpha) { // if LMR fails, search at normal depth and kept the score bandwidth
+                score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha - 1, -alpha, depth-1);
+                if(score > alpha && score < beta) { // if the move is good, search with full window and normal depth
+                    score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+                }
+            }
         }
 
-
+        
         take_back(board);
         search_data->ply--;
         moves_searched++;
@@ -476,7 +464,6 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
             // store history moves
 
             alpha = score;
-            found_pv = 1;
             // write PV mvoe
             search_data->pv_table[search_data->ply][search_data->ply] = move_list->moves[count];
 
