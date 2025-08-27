@@ -11,8 +11,9 @@
 - [**UCI Protocol**](#uci-protocol) – Communicates with GUIs like **Arena**, **CuteChess**, or **lichess-bot**.  
 - [**Perft Testing**](#perft) – Verify correctness of move generation.  
 - [**Principle variation search**](#pv-search) - Improves the performance up to 10%
-- [**Late move reduction**](#late-move-reduction)
-- [**Null move pruning**](#null-move-pruning)
+- [**Late move reduction**](#late-move-reduction) - Improves the performance
+- [**Null move pruning**](#null-move-pruning) - Improves the performance
+- [**Iterative deepening**](#iterative-deepeningd)
 ## Build Instructions
 ### Requirements
 - GCC compiller
@@ -63,6 +64,9 @@ make debug
 - https://www.chessprogramming.org/Perft
 10. Null move pruning by Bruce Moreland
 - https://web.archive.org/web/20071031095933/http://www.brucemo.com/compchess/programming/nullmove.htm
+11. Window Aspiration by Bruce Moreland
+- https://web.archive.org/web/20071031095918/http://www.brucemo.com/compchess/programming/aspiration.htm
+
 ## Running the engine
 This engine works with UCI protocol and every GUI that supports UCI can start the bot. The most popular GUI for chess engines are:
 - Arena
@@ -197,3 +201,16 @@ The main idea behind [Principal Variation Search](#references) searching the PV 
 The engine searches the first few moves deeply, since they are the most prommising. For later, less prommising moves (late moves) the engine reduces the search window.
 # Null move pruning
 The main idea behing this tecnhique is if the current side skips the turn will the opponent make good move. It works because strongs position dont lose their value after one skipped move. If the opponent can make a good move then do regular negamax search, if not make a cutof. Null move pruning doesnt work with Zugzwang positions. Passing a move might actually make the position worse. For null move en passant is disabled, because doing en passant loses its right after not making it immidiently.
+# Iterative deepening
+Iterative deepening (or iterative deepening depth-first search, IDDFS) is a technique where the engine searches the game tree repeatedly, increasing the search depth by one ply each time, until time runs out or the maximum depth is reached.
+1. Start with depth = 1 → run alpha-beta search.
+2. Increase depth = 2 → run alpha-beta search again.
+3. Keep increasing depth until the allotted time is used.
+4. The best move found at the deepest completed depth is chosen.
+
+Why is it userfull
+- Move ordering improvement: Each shallow search produces a principal variation (PV). At the next depth, those PV moves are searched first, improving alpha-beta cutoffs.
+- Time management: The engine always has a "best move so far" even if time runs out suddenly.
+- Better heuristics: Killer moves, history heuristics, and transposition tables all benefit from information collected in earlier iterations.
+# Window Aspiration
+The idea lies in the assumtion that in the iterative deepening the next layer wont give much of a different score from the previous one and thats why to the alpha-beta window is being reduced, prudocing more cutofs.

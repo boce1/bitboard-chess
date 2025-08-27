@@ -18,6 +18,7 @@ extern const int mirror_score[128];
 
 #define ALPHA -50000
 #define BETA 50000
+#define WINDOW_VALUE 50
 
 #define KILLER_MOVE_SCORE_1 9000
 #define KILLER_MOVE_SCORE_2 8000

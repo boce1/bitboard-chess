@@ -153,11 +153,22 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
     // clear helper data structure for search
     init_search_heuristics(search_data);
-
+    int alpha = ALPHA;
+    int beta = BETA;
     for(int current_depth = 1; current_depth <= depth; current_depth++) {
         search_data->follow_pv = 1;
 
-        int score = negamax(board, leaper_masks, slider_masks, search_data, ALPHA, BETA, current_depth);      
+        int score = negamax(board, leaper_masks, slider_masks, search_data, alpha, beta, current_depth);      
+
+        // window aspiration
+        if(score <= ALPHA || score >= BETA) {
+            alpha = ALPHA;
+            beta = BETA;
+            continue;
+        } 
+        alpha = score - WINDOW_VALUE;
+        beta = score + WINDOW_VALUE;
+        // -----
 
         printf("info score cp %d depth %d nodes %ld pv ", score, current_depth, search_data->nodes);
         for(int i = 0; i < search_data->pv_lenght[0]; i++) {
