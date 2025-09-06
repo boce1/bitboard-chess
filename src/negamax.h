@@ -5,6 +5,7 @@
 #include "move_generator.h"
 #include "perft.h"
 #include "bitboard.h"
+#include "time_control.h"
 #include <stdint.h>
 
 extern const int material_score[12];
@@ -68,8 +69,8 @@ typedef struct {
 
 void init_search_heuristics(search_heuristics* search_data);
 
-int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta);
-int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta, int depth);
+int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, int alpha, int beta);
+int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, int alpha, int beta, int depth);
 
 int evaluate(Board* board);
 

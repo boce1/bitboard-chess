@@ -2,16 +2,6 @@
 
 long nodes = 0;
 
-int get_time_ms() {
-    #ifdef WIN64
-        return GetTickCount();
-    #else
-        struct timeval time_value;
-        gettimeofday(&time_value, NULL);
-        return time_value.tv_sec * 1000 + time_value.tv_usec / 1000;
-    #endif
-}
-
 void perft_driver(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
     if(depth == 0) {
         nodes++;
@@ -54,10 +44,10 @@ void perft_test(int depth, Board* board, leaper_moves_masks* leaper_masks, slide
         long old_nodes = nodes - acummulative_nodes; // how many new nodes this move has created
         take_back(board); 
 
-        printf("  move: ");
-        print_move(move_list.moves[i]);
-        printf("  nodes: %ld\n", old_nodes);
-        printf("-------------------------------------------------------------\n");
+        // printf("  move: ");
+        // print_move(move_list.moves[i]);
+        // printf("  nodes: %ld\n", old_nodes);
+        // printf("-------------------------------------------------------------\n");
     }
 
     printf("\nDepth %d\n", depth);

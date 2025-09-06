@@ -310,7 +310,11 @@ int evaluate(Board* board) {
     return 0;
 }
 
-int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta) {
+int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, int alpha, int beta) {
+    if((search_data->nodes & 2047) == 0) { // check every 2048 nodes for time up
+        communicate(time_info);
+    }
+    
     search_data->nodes++; 
     
     int eval = evaluate(board);
@@ -335,7 +339,7 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
             continue;
         }
 
-        int score = -quiescence(board, leaper_masks, slider_masks, search_data, -beta, -alpha);
+        int score = -quiescence(board, leaper_masks, slider_masks, search_data, time_info, -beta, -alpha);
         take_back(board);
         search_data->ply--;
 
@@ -352,15 +356,19 @@ int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_mask
     return alpha;
 }
 
-int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, int alpha, int beta, int depth) {
+int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, int alpha, int beta, int depth) {
     int score;
     int moves_searched = 0; // moves seaarch in the move list 
     
     search_data->pv_lenght[search_data->ply] = search_data->ply;
     
+    if((search_data->nodes & 2047) == 0) { // check every 2048 nodes for time up
+        communicate(time_info);
+    }
+
     if(depth == 0) {
         // extends search tree to the point where the state has a good score
-        return quiescence(board, leaper_masks, slider_masks, search_data, alpha, beta);
+        return quiescence(board, leaper_masks, slider_masks, search_data, time_info, alpha, beta);
     }
     if(search_data->ply >= MAX_PLY) {
         return evaluate(board);
@@ -396,8 +404,13 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         copy_board(board);
         board->side_to_move ^= 1; // switch side to move
         board->en_passant_square = no_square; // cant do en passant after null move
-        score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -beta + 1, depth - REDUCTION - 1);
+        score = -negamax(board, leaper_masks, slider_masks, search_data, time_info, -beta, -beta + 1, depth - REDUCTION - 1);
         take_back(board);
+
+        if(time_info->stopped) {
+            return 0;
+        }
+
         if(score >= beta) {
             return beta;
         }
@@ -423,27 +436,32 @@ int negamax(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* 
         legal_moves++;
 
         if(moves_searched == 0) { // use full window for PV MOVE
-            score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+            score = -negamax(board, leaper_masks, slider_masks, search_data, time_info, -beta, -alpha, depth-1);
         } else { // LMR for non PV moves
             if(moves_searched >= FULL_DEPTH_MOVE && depth >= REDUCED_DEPTH_MOVE 
                 && in_check == 0 
                 && get_move_capture(move_list->moves[count]) == 0 
                 && get_move_promoted(move_list->moves[count]) == 0) {
-                score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha -1, -alpha, depth - 2);
+                score = -negamax(board, leaper_masks, slider_masks, search_data, time_info, -alpha -1, -alpha, depth - 2);
             } else {
                 score = alpha + 1; // set score to be higher than alpha to enter the if condition below
             }
 
             if(score > alpha) { // if LMR fails, search at normal depth and kept the score bandwidth
-                score = -negamax(board, leaper_masks, slider_masks, search_data, -alpha - 1, -alpha, depth-1);
+                score = -negamax(board, leaper_masks, slider_masks, search_data, time_info, -alpha - 1, -alpha, depth-1);
                 if(score > alpha && score < beta) { // if the move is good, search with full window and normal depth
-                    score = -negamax(board, leaper_masks, slider_masks, search_data, -beta, -alpha, depth-1);
+                    score = -negamax(board, leaper_masks, slider_masks, search_data, time_info, -beta, -alpha, depth-1);
                 }
             }
         }
 
         
         take_back(board);
+
+        if(time_info->stopped) {
+            return 0;
+        }
+
         search_data->ply--;
         moves_searched++;
 

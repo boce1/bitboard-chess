@@ -39,9 +39,17 @@ make debug
 ```
 
 ## References
-1. This project is inspired by and follows the tutorial series from Maksim Korzh.
+1. 
+
+This project is inspired by and follows the tutorial series from Maksim Korzh:
 - Youtube series: https://youtube.com/playlist?list=PLmN0neTso3Jxh8ZIylk74JpwfiWNI76Cs&si=Sd3jy2bCRtksQ3oJ
 - Github repo of his engine: https://github.com/maksimKorzh/bbc.git
+This project also follows the tutorial series from Richard Albert (BluefeverSoftware)
+- Youtube series: https://youtube.com/playlist?list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg&si=IY0aUhYoSW81WAQd
+- Github repo of his engine: https://github.com/bluefeversoft/vice.git
+
+**NOTE: The BBC chess engine from Maksim Korzh has the same philosophy for pv tables and time controls as the VICE and TSCP chess engines.**
+
 2. Principle Variation Search by Bruce Moreland: 
 - https://web.archive.org/web/20071030220825/http://www.brucemo.com/compchess/programming/pvs.htm#expand
 3. Manimax and alpha-beta prunning 
@@ -51,21 +59,24 @@ make debug
 4. Magic numbers and magic bitboard for move generation
 - TimosPal, repo: https://github.com/TimosPal/NNUE-Bitboard-Chess-Engine
 - Chess programming wiki: https://www.chessprogramming.org/Magic_Bitboards
-5. The PV table implementation if from TSCP chess engine
+5. Time controls by VICE chess engine made by Richard Allbert
+- Github repo of the egnine: https://github.com/bluefeversoft/vice
+- Time control code: https://github.com/bluefeversoft/vice/blob/main/Vice11/src/misc.c
+6. The PV table implementation if from TSCP chess engine
 - https://www.chessprogramming.org/TSCP
 - https://www.tckerrigan.com/Chess/TSCP/
-6. UCI protocol
+7. UCI protocol
 - https://www.chessprogramming.org/UCI
 - Weiss chess engine by Richard Olbert: http://github.com/TerjeKir/weiss
-7. FEN
+8. FEN
 - https://www.chess.com/terms/fen-chess
-8. Late move reduction
+9. Late move reduction
 - https://web.archive.org/web/20150212051846/http://www.glaurungchess.com/lmr.html
-9. Perft
+10. Perft
 - https://www.chessprogramming.org/Perft
-10. Null move pruning by Bruce Moreland
+11. Null move pruning by Bruce Moreland
 - https://web.archive.org/web/20071031095933/http://www.brucemo.com/compchess/programming/nullmove.htm
-11. Window Aspiration by Bruce Moreland
+12. Window Aspiration by Bruce Moreland
 - https://web.archive.org/web/20071031095918/http://www.brucemo.com/compchess/programming/aspiration.htm
 
 ## Running the engine

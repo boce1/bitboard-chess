@@ -87,14 +87,74 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
 }
 
 
-void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
-    // go depth n
-    int depth = 6;
+void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info) {
+    int depth = -1;
     char* current_char = NULL;
-    if((current_char = strstr(command, "depth"))) {
+
+    if((current_char = strstr(command, "infinite"))) 
+        depth = MAX_PLY; // effectively infinite
+    
+    if ((current_char = strstr(command,"binc")) && board->side_to_move == black)
+        // parse black time increment
+        time_info->inc = atoi(current_char + 5);
+
+    if ((current_char = strstr(command,"winc")) && board->side_to_move == white)
+        // parse white time increment
+        time_info->inc = atoi(current_char + 5);
+
+    if ((current_char = strstr(command,"wtime")) && board->side_to_move == white)
+        // parse white time limit
+        time_info->time = atoi(current_char + 6);
+
+    if ((current_char = strstr(command,"btime")) && board->side_to_move == black)
+        // parse black time limit
+        time_info->time = atoi(current_char + 6);
+
+    if ((current_char = strstr(command,"movestogo")))
+        // parse number of moves to go
+        time_info->movestogo = atoi(current_char + 10);
+
+    if ((current_char = strstr(command,"movetime")))
+        // parse amount of time allowed to spend to make a move
+        time_info->movetime = atoi(current_char + 9);
+
+    if((current_char = strstr(command, "depth"))) 
         depth = atoi(current_char + 6); // "depth "
-    } 
-    search_position(depth, board, leaper_masks, slider_masks, search_data);
+
+    
+    if(time_info->movetime != -1)
+    {
+        time_info->time = time_info->movetime; // set time equal to move time
+        time_info->movestogo = 1; // set moves to go to 1
+    }
+    time_info->starttime = get_time_ms();
+
+    // if time control is available
+    if(time_info->time != -1)
+    {
+        // flag we're playing with time control
+        time_info->timeset = 1;
+
+        // set up timing
+        time_info->time /= time_info->movestogo;
+        
+        // "illegal" (empty) move bug fix
+        if (time_info->time > 1500) time_info->time -= 50;
+        
+        // init stoptime
+        time_info->stoptime = time_info->starttime + time_info->time + time_info->inc;
+    }
+
+    // if depth is not available
+    if(depth == -1)
+        // set depth to 64 plies (takes ages to complete...)
+        depth = MAX_PLY;
+
+    // print debug info
+    printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
+    time_info->time, time_info->starttime, time_info->stoptime, depth, time_info->timeset);
+
+    search_position(depth, board, leaper_masks, slider_masks, search_data, time_info);
 }
 
 /*
@@ -103,7 +163,7 @@ GUI - isready
 Engine - readyok
 GUI - ucinewgame
 */
-void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
+void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info) {
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
 
@@ -135,7 +195,7 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
             parse_position("position startpos", board, leaper_masks, slider_masks);
         }
         else if(strncmp(input, "go", 2) == 0) {
-            parse_go(input, board, leaper_masks, slider_masks, search_data);
+            parse_go(input, board, leaper_masks, slider_masks, search_data, time_info);
         }
         else if(strncmp(input, "quit", 4) == 0) {
             break;
@@ -150,15 +210,23 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 
 }
 
-void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data) {
+void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info) {
     // clear helper data structure for search
     init_search_heuristics(search_data);
     int alpha = ALPHA;
     int beta = BETA;
+
+    time_info->stopped = 0;
+
     for(int current_depth = 1; current_depth <= depth; current_depth++) {
+        if(time_info->stopped) {
+            // STOPS CALCULATING AND RETURNS BEST MOVE FOUND SO FAR
+            break;
+        }
+
         search_data->follow_pv = 1;
 
-        int score = negamax(board, leaper_masks, slider_masks, search_data, alpha, beta, current_depth);      
+        int score = negamax(board, leaper_masks, slider_masks, search_data, time_info, alpha, beta, current_depth);      
 
         // window aspiration
         if(score <= ALPHA || score >= BETA) {
