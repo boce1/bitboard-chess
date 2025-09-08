@@ -84,19 +84,6 @@ const int mirror_score[128] = {
 	a8, b8, c8, d8, e8, f8, g8, h8
 };
 
-/*
-                          
-    (Victims) Pawn Knight Bishop   Rook  Queen   King
-  (Attackers)
-        Pawn   105    205    305    405    505    605
-      Knight   104    204    304    404    504    604
-      Bishop   103    203    303    403    503    603
-        Rook   102    202    302    402    502    602
-       Queen   101    201    301    401    501    601
-        King   100    200    300    400    500    600
-
-*/
-
 // MVV LVA [attacker][victim]
 int const mvv_lva[12][12] = {
  	{105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
@@ -113,6 +100,15 @@ int const mvv_lva[12][12] = {
 	{101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601},
 	{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600}
 };
+
+search_heuristics* create_search_heuristics() {
+    search_heuristics* search_data = (search_heuristics*)malloc(sizeof(search_heuristics));
+    if(!search_data) {
+        fprintf(stderr, "Memory allocation failed for Search Heueristics\n");
+        exit(EXIT_FAILURE);
+    }
+    return search_data;
+}
 
 void init_search_heuristics(search_heuristics* data) {
     data->ply = 0;

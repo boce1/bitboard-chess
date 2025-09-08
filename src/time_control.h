@@ -8,6 +8,8 @@
 #endif
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct {
     int quit;
@@ -21,6 +23,7 @@ typedef struct {
     int stopped; // variable to flag when the time is up
 } time_controls;
 
+time_controls* create_time_controls();
 void init_time_controls(time_controls* info);
 int get_time_ms();
 int input_waiting();

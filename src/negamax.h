@@ -31,6 +31,20 @@ extern const int mirror_score[128];
 #define REDUCED_DEPTH_MOVE 3
 #define REDUCTION 2 // for null move pruning
 
+
+/*
+        Most valuable victim, least valuebale piece table                        
+    (Victims) Pawn Knight Bishop   Rook  Queen   King
+  (Attackers)
+        Pawn   105    205    305    405    505    605
+      Knight   104    204    304    404    504    604
+      Bishop   103    203    303    403    503    603
+        Rook   102    202    302    402    502    602
+       Queen   101    201    301    401    501    601
+        King   100    200    300    400    500    600
+
+*/
+
 // Trianglular PV table (principle variation)
 // Principle variation is a move that lies along the best line of play found during the search
 // The idea is storing the best moves and in the next negamax iteration first check them because they are good candidates for prunning
@@ -67,6 +81,7 @@ typedef struct {
 
 } search_heuristics;
 
+search_heuristics* create_search_heuristics();
 void init_search_heuristics(search_heuristics* search_data);
 
 int quiescence(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, int alpha, int beta);

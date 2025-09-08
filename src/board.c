@@ -26,8 +26,7 @@ Board* create_board() {
         fprintf(stderr, "Memory allocation failed for Board\n");
         exit(EXIT_FAILURE);
     }
-
-    init_board(board);
+    
     return board;
 }
 

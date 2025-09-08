@@ -16,19 +16,21 @@ int main() {
     slider_moves_masks* slider_masks = create_slider_moves_masks(); // rook, bishop, queen masks
     init_leaper_moves_masks(leaper_masks);
     init_slider_moves_masks(slider_masks);
-    Board board[1];
+
+    Board* board = create_board();;
     init_board(board);
 
-    search_heuristics search_data[1];
+    search_heuristics* search_data = create_search_heuristics();
     init_search_heuristics(search_data);
 
-    time_controls time_info[1];
+    time_controls* time_info = create_time_controls();
     init_time_controls(time_info); 
 
-    int debug = 0; // set to 0 to run UCI loop
+    int debug = 1; // set to 0 to run UCI loop
     if(debug) {
 
         parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ", board);
+        parse_fen(start_position, board);
         print_board(board);
         
         //perft_test(2, board, leaper_masks, slider_masks);
@@ -44,13 +46,20 @@ int main() {
         uci_loop(board, leaper_masks, slider_masks, search_data, time_info);
     }
     
-    //free(board); 
+    if(board != NULL) {
+        free(board); 
+    }
     if(leaper_masks != NULL) {
         free(leaper_masks);  
     }
     if(slider_masks != NULL) {
         free(slider_masks);
     }
-    
+    if(search_data != NULL) {
+        free(search_data);
+    }
+    if(time_info != NULL) {
+        free(time_info);
+    }
     return 0;
 }

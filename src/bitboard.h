@@ -39,10 +39,10 @@ extern const char* square_to_cordinates[65];
 extern const int bishop_relevant_bits[64];
 extern const int rook_relevant_bits[64];
 
-const uint64_t not_a_file; // bitboard where bits on 'a' file are 0
-const uint64_t not_h_file; // bitboard where bits on 'h' file are 0
-const uint64_t not_hg_file;
-const uint64_t not_ab_file;
+extern const uint64_t not_a_file; // bitboard where bits on 'a' file are 0
+extern const uint64_t not_h_file; // bitboard where bits on 'h' file are 0
+extern const uint64_t not_hg_file;
+extern const uint64_t not_ab_file;
 
 /*
     rook and bishop attack masks are the mask for blocker bitboards. they produce occupancy board that produce magic number

@@ -1,5 +1,15 @@
 #include "time_control.h"
 
+time_controls* create_time_controls() {
+    time_controls* time_info = (time_controls*)malloc(sizeof(time_controls));
+    if(!time_info) {
+        fprintf(stderr, "Memory allocation failed for time contols.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return time_info;
+}
+
 void init_time_controls(time_controls* info) {
     info->quit = 0;
     info->movestogo = 30;
@@ -62,7 +72,7 @@ void read_input(time_controls* info) {
     char input[256] = "", *endc;
 
     if (input_waiting()) {
-		info->stopped = TRUE;
+		info->stopped = 1;
 		do {
 		  bytes=read(fileno(stdin),input,256);
 		} while (bytes<0);
@@ -71,7 +81,7 @@ void read_input(time_controls* info) {
 
 		if (strlen(input) > 0) {
 			if (!strncmp(input, "quit", 4))    {
-			  info->quit = TRUE;
+			  info->quit = 1;
 			}
 		}
 		return;
