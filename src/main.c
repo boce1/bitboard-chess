@@ -26,7 +26,7 @@ int main() {
     time_controls* time_info = create_time_controls();
     init_time_controls(time_info); 
 
-    int debug = 1; // set to 0 to run UCI loop
+    int debug = 0; // set to 0 to run UCI loop
     if(debug) {
 
         parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ", board);

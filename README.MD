@@ -14,32 +14,9 @@
 - [**Late move reduction**](#late-move-reduction) - Improves the performance
 - [**Null move pruning**](#null-move-pruning) - Improves the performance
 - [**Iterative deepening**](#iterative-deepeningd)
-## Build Instructions
-### Requirements
-- GCC compiller
-- make tool for reading and executing the makefile
-
-### Compile
-Clone the repo
-```bash
-git clone https://github.com/boce1/bitboard-chess.git
-cd bitboard-chess
-```
-
-To run the "release" version of the chess bot
-```bash
-make
-./bin/bitboard_chess_release
-```
-
-For debug
-```bash
-make debug
-./bin/bitboard_chess_debug
-```
 
 ## References
-1. 
+1. Youtube tutorials and Github repos
 
 This project is inspired by and follows the tutorial series from Maksim Korzh:
 - Youtube series: https://youtube.com/playlist?list=PLmN0neTso3Jxh8ZIylk74JpwfiWNI76Cs&si=Sd3jy2bCRtksQ3oJ
@@ -80,17 +57,43 @@ This project also follows the tutorial series from Richard Albert (BluefeverSoft
 12. Window Aspiration by Bruce Moreland
 - https://web.archive.org/web/20071031095918/http://www.brucemo.com/compchess/programming/aspiration.htm
 
-## Running the engine
+# Running the engine
 This engine works with UCI protocol and every GUI that supports UCI can start the bot. The most popular GUI for chess engines are:
 - Arena
 - Lucas Chess
 - Tarrasch
 - Cute Chess
 
-### For windows
-To play this engine just load ```bitboard_chess_release.exe```.
-### For Unix based OS
-Executable ```bitboard_chess_release.exe``` in the ```bin``` folder is only Windows compatable. For Unix systems the program needs to be compiled and then loaded in a GUI. Instructions are in [Build Instructions](#build-instructions) section.
+
+There's executables in ```bin``` folder. 
+- For ***Windows*** load the ```bitboard_chess_windows_release.exe```
+- For ***Linux distros*** load the ```bitboard_chess_linux_release```
+
+## Build Instructions (If the executables are not system compatable)
+### Requirements
+- GCC compiller
+- make tool for reading and executing the makefile
+
+### Compile
+Clone the repo
+```bash
+git clone https://github.com/boce1/bitboard-chess.git
+cd bitboard-chess
+```
+
+To run the "release" version of the chess bot
+```bash
+make linux_release
+./bin/bitboard_chess_linux_release
+```
+
+For debug
+```bash
+make linux_debug
+./bin/bitboard_chess_debug
+```
+
+Note: The ```linux_release``` and ```linux_debug``` will work for all OSes if the ```gcc``` compiler is installed.
 
 # Bitboards
 Bitboards (also called bitmaps) are unsigned 64-bit integers. They are used to represent the state of the board. This method offers great computational speed because bitboard can be manipulated with binary operation. Modern computers are 64-bit arhitectures wich allows ussability of 64 bit registers. Binary operations with 64bit registers are much faster than the standard 2d representation of the board.
