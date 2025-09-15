@@ -11,7 +11,6 @@ time_controls* create_time_controls() {
 }
 
 void init_time_controls(time_controls* info) {
-    info->quit = 0;
     info->movestogo = 30;
     info->movetime = -1; 
     info->time = -1;
@@ -79,11 +78,6 @@ void read_input(time_controls* info) {
 		endc = strchr(input,'\n');
 		if (endc) *endc=0;
 
-		if (strlen(input) > 0) {
-			if (!strncmp(input, "quit", 4))    {
-			  info->quit = 1;
-			}
-		}
 		return;
     }
 }

@@ -11,8 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+for UCI loop input only happens once
+the need for read_input in time contol is reading the input during the search
+*/
+
 typedef struct {
-    int quit;
     int movestogo; // UCI "movestogo" command moves counter
     int movetime; // UCI "movetime" command time counter
     int time; // UCI "time" command holder (ms)

@@ -27,5 +27,35 @@ void init_zoobrist_random_keys(zoobrist_hash_keys* hash_data) {
         hash_data->castle_keys[i] = get_random_uint64_t();
     }
 
-    hash_data->side_keys = get_random_uint64_t();
+    hash_data->side_key = get_random_uint64_t();
+
+    hash_data->board_hash_key = 0; // Initialize to zero, will be updated as pieces are added/removed
+}
+
+uint64_t generate_board_hash_key(Board* board, zoobrist_hash_keys* hash_data) {
+    uint64_t final_key = 0;
+
+    for(int piece = P; piece <= k; piece++) {
+        uint64_t bitboard = board->pieces[piece];
+        while (bitboard) {
+            int square = get_least_significant_bit_index(bitboard); // Get the index of the least significant bit
+            final_key ^= hash_data->piece_keys[piece][square]; // XOR the piece-square key
+            pop_bit(bitboard, square); 
+        }
+    }
+
+    if (board->en_passant_square != no_square) {
+        final_key ^= hash_data->en_passant_keys[board->en_passant_square];
+    }
+
+    final_key ^= hash_data->castle_keys[board->castling_rights];
+    if(board->side_to_move == black) { // hash the side if black is to move
+        final_key ^= hash_data->side_key;
+    }
+    return final_key;
+}
+
+void print_hash_key(Board* board, zoobrist_hash_keys* hash_data) {
+    uint64_t hash_key = generate_board_hash_key(board, hash_data);
+    printf("Hash key: %" PRIu64 "\n", hash_key);
 }

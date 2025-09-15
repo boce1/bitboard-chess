@@ -13,7 +13,8 @@
 - [**Principle variation search**](#pv-search) - Improves the performance up to 10%
 - [**Late move reduction**](#late-move-reduction) - Improves the performance
 - [**Null move pruning**](#null-move-pruning) - Improves the performance
-- [**Iterative deepening**](#iterative-deepeningd)
+- [**Iterative deepening**](#iterative-deepeningd) - Give the best move so far in the tree if engine runs out of time
+- [**Zoobrist hashing**](#zoobrist-hashing) - Giving the "IDs" to the board positions
 
 ## References
 1. Youtube tutorials and Github repos
@@ -230,3 +231,13 @@ Why is it userfull
 - Better heuristics: Killer moves, history heuristics, and transposition tables all benefit from information collected in earlier iterations.
 # Window Aspiration
 The idea lies in the assumtion that in the iterative deepening the next layer wont give much of a different score from the previous one and thats why to the alpha-beta window is being reduced, prudocing more cutofs.
+# Zoobrist hashing
+Zobrist hashing is a way to assign a unique hash value to a game state (chess position) in a very efficient manner. It’s designed so you can update the hash quickly when a move is made, instead of recomputing everything from scratch.
+
+In board games the same position can be reached with different move orders. Without the hashing, the engine will treat it as the separate nodes and it will waste time. The zoobrist hashing alg will produce the same hash and engine wont analyze the position more than once. This method is very fast, because instead of comparing the entire board, engine will compare unsigned 64-bit integers. Also because the alg is working with 64-bit unsigned int, it is rare for hash collisions to occur.
+
+Speciffictly, one of the use cases is checking the cycle repetition. Previous position can be stored and lately checked.
+
+Representation of the board is really compact, because it is represented as 64-bit unsigned ints and that allows storing a large numbers of hashes of the boards.
+
+It is also used for their speed, because updating them is xor-ing the previous position and xor-ing the new position with the current hash, instead of recomputing the board all the time.
