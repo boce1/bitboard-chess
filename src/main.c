@@ -6,6 +6,7 @@
 #include "uci.h"
 #include "negamax.h"
 #include "time_control.h"
+#include "zoobrist_hash.h"
 // #include "perft.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +27,10 @@ int main() {
     time_controls* time_info = create_time_controls();
     init_time_controls(time_info); 
 
-    int debug = 0; // set to 0 to run UCI loop
+    zoobrist_hash_keys* hash_data = create_zoobrist_hash_keys ();
+    init_zoobrist_random_keys(hash_data);
+
+    int debug = 1; // set to 0 to run UCI loop
     if(debug) {
 
         parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ", board);
@@ -60,6 +64,9 @@ int main() {
     }
     if(time_info != NULL) {
         free(time_info);
+    }
+    if(hash_data != NULL) {
+        free(hash_data);
     }
     return 0;
 }

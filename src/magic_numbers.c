@@ -1,8 +1,4 @@
 #include "magic_numbers.h"
-// #include "bitboard.h"
-// #include <stdio.h>
-// #include <string.h>
-// #include <inttypes.h>
 
 const uint64_t rook_magic_numbers[64] = {
     9979994641325359136ULL,
@@ -144,7 +140,7 @@ const uint64_t bishop_magic_numbers[64] = {
     The idia is not generating them every time the program starts.
 */
 
-/*
+
 unsigned int random_state = 1804289383; // initial random state, IDIA IS MAKING THE ENGINE CROSS PLATFORM
 
 unsigned int get_random_uint_32() {
@@ -170,7 +166,7 @@ uint64_t get_random_uint64_t() {
 uint64_t generate_magic_number() {
     return get_random_uint64_t() & get_random_uint64_t() & get_random_uint64_t();
 }
-
+/*
 uint64_t find_magic_number(int square, int relevant_bits, int piece_type, leaper_moves_masks* masks) {
     uint64_t occupancies[4096];
     uint64_t attacks[4096];
