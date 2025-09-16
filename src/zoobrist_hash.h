@@ -18,6 +18,12 @@ typedef struct {
     uint64_t board_hash_key; // current board hash key, it is not random, represents id of the current position
 } zoobrist_hash_keys;
 
+#define copy_board_hash_key(hash_keys) \
+    uint64_t board_hash_key_copy = (hash_keys)->board_hash_key; \
+
+#define take_back_board_hash_key(hash_keys) \
+    (hash_keys)->board_hash_key = board_hash_key_copy; \
+
 zoobrist_hash_keys* create_zoobrist_hash_keys();
 void init_zoobrist_random_keys(zoobrist_hash_keys* hash_data);
 

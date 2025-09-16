@@ -7,7 +7,7 @@
 #include "negamax.h"
 #include "time_control.h"
 #include "zoobrist_hash.h"
-// #include "perft.h"
+#include "perft.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,17 +29,18 @@ int main() {
 
     zoobrist_hash_keys* hash_data = create_zoobrist_hash_keys ();
     init_zoobrist_random_keys(hash_data);
+    hash_data->board_hash_key = generate_board_hash_key(board, hash_data);
 
     int debug = 1; // set to 0 to run UCI loop
     if(debug) {
 
-        parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b Kkq - ", board);
+        parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -", board);
         //parse_fen(start_position, board);
         print_board(board);
         
-        print_hash_key(board, hash_data);
+        //print_hash_key(board, hash_data);
 
-        //perft_test(2, board, leaper_masks, slider_masks);
+        perft_test(4, board, leaper_masks, slider_masks, hash_data);
         //search_position(6, board, leaper_masks, slider_masks, search_data, time_info);
         //Moves mv[1];
         //init_move_list(mv);
@@ -49,7 +50,7 @@ int main() {
         //print_move_scores(mv, board, search_data);        
         //printf("score %d\n", evaluate(board));
     } else {
-        uci_loop(board, leaper_masks, slider_masks, search_data, time_info);
+        uci_loop(board, leaper_masks, slider_masks, search_data, time_info, hash_data);
     }
     
     if(board != NULL) {

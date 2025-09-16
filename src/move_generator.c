@@ -386,9 +386,10 @@ void add_move(Moves* move_list, int move) {
 }
 // -----------------------
 
-int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
+int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, zoobrist_hash_keys* hash_keys) {
     if(move_flag == all_moves) {
         copy_board(board);
+        copy_board_hash_key(hash_keys);
 
         int source_square = get_move_source(move);
         int target_square = get_move_target(move);
@@ -415,6 +416,10 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
             for(int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++ ) {
                 if(get_bit(board->pieces[bb_piece], target_square)) {
                     pop_bit(board->pieces[bb_piece], target_square);
+
+                    // UPDATE HASH KEY FOR CAPTURE
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[bb_piece][target_square]; // remove captured piece from target square
+
                     break;
                 }
             }
@@ -423,15 +428,29 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
         if(promoted_piece) {
             if(board->side_to_move == white) {
                 pop_bit(board->pieces[P], target_square);
+                hash_keys->board_hash_key ^= hash_keys->piece_keys[P][target_square]; // remove pawn from target square
             } else if(board->side_to_move == black) {
                 pop_bit(board->pieces[p], target_square);
+                hash_keys->board_hash_key ^= hash_keys->piece_keys[p][target_square]; // remove pawn from target square
             }
             set_bit(board->pieces[promoted_piece], target_square);
+            hash_keys->board_hash_key ^= hash_keys->piece_keys[promoted_piece][target_square]; // add promoted piece to target square
         }
 
         if(enpass) { // en passant captures
-            if(board->side_to_move == white) pop_bit(board->pieces[p], target_square + 8);
-            else if (board->side_to_move == black) pop_bit(board->pieces[P], target_square - 8);
+            if(board->side_to_move == white) {
+                pop_bit(board->pieces[p], target_square + 8);
+                hash_keys->board_hash_key ^= hash_keys->piece_keys[p][target_square + 8]; // remove captured pawn from target square
+            }
+            else if (board->side_to_move == black) {
+                pop_bit(board->pieces[P], target_square - 8);
+                hash_keys->board_hash_key ^= hash_keys->piece_keys[P][target_square - 8]; // remove captured pawn from target square
+
+            }
+        }
+
+        if(board->en_passant_square != no_square) { // remove en passant hash key if there was one
+            hash_keys->board_hash_key ^= hash_keys->en_passant_keys[board->en_passant_square];
         }
 
         board->en_passant_square = no_square; // reset en passant exceot double pawn push
@@ -439,9 +458,11 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
         if(double_push) {
             if(board->side_to_move == white) {
                 board->en_passant_square = target_square + 8;
+
             } else if(board->side_to_move == black){
                 board->en_passant_square = target_square - 8;
             }
+            hash_keys->board_hash_key ^= hash_keys->en_passant_keys[board->en_passant_square]; // update hash key for en passant
         }
 
         if(castiling) {
@@ -449,25 +470,40 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
                 case (g1): // white king side
                     pop_bit(board->pieces[R], h1);
                     set_bit(board->pieces[R], f1);
+
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[R][h1]; // remove rook from h1
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[R][f1]; // add rook to f1
                     break;
                 case (c1): // white queen side
                     pop_bit(board->pieces[R], a1);
                     set_bit(board->pieces[R], d1);
+
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[R][a1]; // remove rook from a1
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[R][d1]; // add rook to d1
                     break;
                 case (g8): // black king side
                     pop_bit(board->pieces[r], h8);
                     set_bit(board->pieces[r], f8);
+
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[r][h8]; // remove rook from h8
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[r][f8]; // add rook to f8
                     break;
                 case (c8): // black queen side
                     pop_bit(board->pieces[r], a8);
                     set_bit(board->pieces[r], d8);
+
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[r][a8]; // remove rook from a8
+                    hash_keys->board_hash_key ^= hash_keys->piece_keys[r][d8]; // add rook to d8
                     break;
             }
         }
 
+
+        hash_keys->board_hash_key ^= hash_keys->castle_keys[board->castling_rights]; // remove castling right hash
         // update castiling rights
         board->castling_rights &= castling_rights_vals[source_square]; // if pieces move
         board->castling_rights &= castling_rights_vals[target_square]; // if pieces get captured
+        hash_keys->board_hash_key ^= hash_keys->castle_keys[board->castling_rights]; // add castling right hash
 
         memset(board->occupancies, 0ULL, 24);
         int bb_piece;
@@ -487,24 +523,47 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
             king_pos = get_least_significant_bit_index(board->pieces[K]);
             if(is_square_attacked(king_pos, board, leaper_masks, slider_masks)) {
                 take_back(board);
+                take_back_board_hash_key(hash_keys);
                 return 0;
             }
         } else if(board->side_to_move == black) {
             king_pos = get_least_significant_bit_index(board->pieces[k]);
             if(is_square_attacked(king_pos, board, leaper_masks, slider_masks)) {
                 take_back(board);
+                take_back_board_hash_key(hash_keys);
                 return 0;
             }
         }
 
         // change side
-        board->side_to_move ^= 1;
+        board->side_to_move ^= 1; 
+
+        // UPDATE HASH KEY
+        hash_keys->board_hash_key ^= hash_keys->side_key; // hash side for black, returns at the previous state for white (it toggles this parameter)
+        hash_keys->board_hash_key ^= hash_keys->piece_keys[piece][source_square]; // remove piece from source square
+        hash_keys->board_hash_key ^= hash_keys->piece_keys[piece][target_square]; // add piece to target square
+        // if move is capture the capture piece removes the hash it gave
+        // for en passant the hash key is updated in double push if statement
+        // if ene passant happens remove the en passant hash in en passant if statement
+        // for castiling unhash the castling right then hash it again (in the castling right update)
+        // for promotion remove pawn from target square and add promoted piece to target square (done in promotion if statement)
+
+        // DEBUGGING HASH KEY
+        //uint64_t current_hash_key = generate_board_hash_key(board, hash_keys);
+        //if(hash_keys->board_hash_key != current_hash_key) {
+        //    printf("Make move\n");
+        //    print_move(move);
+        //    print_board(board);
+        //    printf("Board hash key: %" PRIu64 "\n", hash_keys->board_hash_key);
+        //    printf("Current hash key: %" PRIu64 "\n", current_hash_key);
+        //    getchar();
+        //}
 
         return 1;
         
     } else if(move_flag == only_captures) {
         if(get_move_capture(move)) {
-            return make_move(board, move, all_moves, leaper_masks, slider_masks);
+            return make_move(board, move, all_moves, leaper_masks, slider_masks, hash_keys);
         } else {
             return 0;
         }

@@ -47,7 +47,7 @@ to command user can pas FEN string
 or FEN string + moves to make
 */
 
-void parse_position(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks) {
+void parse_position(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, zoobrist_hash_keys* hash_keys) {
     command += 9;
     char* current_char = command;
 
@@ -75,7 +75,7 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
                 break;
             }
 
-            make_move(board, move, all_moves, leaper_masks, slider_masks);
+            make_move(board, move, all_moves, leaper_masks, slider_masks, hash_keys);
 
             while(*current_char && *current_char != ' ') {
                 current_char++;
@@ -87,7 +87,7 @@ void parse_position(char* command, Board* board, leaper_moves_masks* leaper_mask
 }
 
 
-void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info) {
+void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, zoobrist_hash_keys* hash_keys) {
     int depth = -1;
     char* current_char = NULL;
 
@@ -154,7 +154,7 @@ void parse_go(char* command, Board* board, leaper_moves_masks* leaper_masks, sli
     printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
     time_info->time, time_info->starttime, time_info->stoptime, depth, time_info->timeset);
 
-    search_position(depth, board, leaper_masks, slider_masks, search_data, time_info);
+    search_position(depth, board, leaper_masks, slider_masks, search_data, time_info, hash_keys);
 }
 
 /*
@@ -163,7 +163,7 @@ GUI - isready
 Engine - readyok
 GUI - ucinewgame
 */
-void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info) {
+void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, zoobrist_hash_keys* hash_keys) {
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
 
@@ -189,13 +189,13 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
             continue;
         }
         else if(strncmp(input, "position", 8) == 0) {
-            parse_position(input, board, leaper_masks, slider_masks);
+            parse_position(input, board, leaper_masks, slider_masks, hash_keys);
         }
         else if(strncmp(input, "ucinewgame", 10) == 0) {
-            parse_position("position startpos", board, leaper_masks, slider_masks);
+            parse_position("position startpos", board, leaper_masks, slider_masks, hash_keys);
         }
         else if(strncmp(input, "go", 2) == 0) {
-            parse_go(input, board, leaper_masks, slider_masks, search_data, time_info);
+            parse_go(input, board, leaper_masks, slider_masks, search_data, time_info, hash_keys);
         }
         else if(strncmp(input, "quit", 4) == 0) {
             break;
@@ -210,7 +210,7 @@ void uci_loop(Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks
 
 }
 
-void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info) {
+void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, search_heuristics* search_data, time_controls* time_info, zoobrist_hash_keys* hash_keys) {
     // clear helper data structure for search
     init_search_heuristics(search_data);
     int alpha = ALPHA;
@@ -226,7 +226,7 @@ void search_position(int depth, Board* board, leaper_moves_masks* leaper_masks, 
 
         search_data->follow_pv = 1;
 
-        int score = negamax(board, leaper_masks, slider_masks, search_data, time_info, alpha, beta, current_depth);      
+        int score = negamax(board, leaper_masks, slider_masks, search_data, time_info, hash_keys, alpha, beta, current_depth);      
 
         // window aspiration
         if(score <= ALPHA || score >= BETA) {

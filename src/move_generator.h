@@ -4,6 +4,7 @@
 #include "board.h"
 #include "attack.h"
 #include "bitboard.h"
+#include "zoobrist_hash.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -98,7 +99,7 @@ board.occupancies size 24
 
 typedef enum { all_moves, only_captures } move_flags;
 
-int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks); // move_flag can be all_moves or only_captures
+int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_masks, slider_moves_masks* slider_masks, zoobrist_hash_keys* hash_keys); // move_flag can be all_moves or only_captures
 
 /*
     ----------------encoding/deconding moves-------------------
