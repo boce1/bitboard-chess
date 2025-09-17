@@ -55,6 +55,10 @@ uint64_t generate_board_hash_key(Board* board, zoobrist_hash_keys* hash_data) {
     return final_key;
 }
 
+void init_board_hash_key(Board* board, zoobrist_hash_keys* hash_data) {
+    hash_data->board_hash_key = generate_board_hash_key(board, hash_data);
+}
+
 void print_hash_key(Board* board, zoobrist_hash_keys* hash_data) {
     uint64_t hash_key = generate_board_hash_key(board, hash_data);
     printf("Hash key: %" PRIu64 "\n", hash_key);

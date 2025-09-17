@@ -29,18 +29,21 @@ int main() {
 
     zoobrist_hash_keys* hash_data = create_zoobrist_hash_keys ();
     init_zoobrist_random_keys(hash_data);
-    hash_data->board_hash_key = generate_board_hash_key(board, hash_data);
 
-    int debug = 1; // set to 0 to run UCI loop
+    int debug = 0; // set to 0 to run UCI loop
     if(debug) {
 
         parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -", board);
-        //parse_fen(start_position, board);
+        parse_fen(start_position, board);
+
+        init_board_hash_key(board, hash_data);
         print_board(board);
         
+        // print_hash_key(board, hash_data);
+        // printf("Board hash key: %" PRIu64 "\n", hash_data->board_hash_key);
+        perft_test(4, board, leaper_masks, slider_masks, hash_data);
         //print_hash_key(board, hash_data);
 
-        perft_test(4, board, leaper_masks, slider_masks, hash_data);
         //search_position(6, board, leaper_masks, slider_masks, search_data, time_info);
         //Moves mv[1];
         //init_move_list(mv);
@@ -49,6 +52,9 @@ int main() {
         //sort_moves(mv, board, search_data);
         //print_move_scores(mv, board, search_data);        
         //printf("score %d\n", evaluate(board));
+
+        // 7986424829486667136
+        // 7986424829486667136
     } else {
         uci_loop(board, leaper_masks, slider_masks, search_data, time_info, hash_data);
     }

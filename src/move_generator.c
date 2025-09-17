@@ -402,7 +402,17 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
 
         pop_bit(board->pieces[piece], source_square);
         set_bit(board->pieces[piece], target_square);
-        //printf("\n%s%s\n", square_to_cordinates[source_square], square_to_cordinates[target_square]);
+
+        // UPDATE HASH KEY
+        hash_keys->board_hash_key ^= hash_keys->side_key; // hash side for black, returns at the previous state for white (it toggles this parameter)
+        hash_keys->board_hash_key ^= hash_keys->piece_keys[piece][source_square]; // remove piece from source square
+        hash_keys->board_hash_key ^= hash_keys->piece_keys[piece][target_square]; // add piece to target square
+        // if move is capture the capture piece removes the hash it gave
+        // for en passant the hash key is updated in double push if statement
+        // if ene passant happens remove the en passant hash in en passant if statement
+        // for castiling unhash the castling right then hash it again (in the castling right update)
+        // for promotion remove pawn from target square and add promoted piece to target square (done in promotion if statement)
+
         if(capture) { // capture pieces
             int start_piece, end_piece;
             if(board->side_to_move == white) {
@@ -538,26 +548,16 @@ int make_move(Board* board, int move, int move_flag, leaper_moves_masks* leaper_
         // change side
         board->side_to_move ^= 1; 
 
-        // UPDATE HASH KEY
-        hash_keys->board_hash_key ^= hash_keys->side_key; // hash side for black, returns at the previous state for white (it toggles this parameter)
-        hash_keys->board_hash_key ^= hash_keys->piece_keys[piece][source_square]; // remove piece from source square
-        hash_keys->board_hash_key ^= hash_keys->piece_keys[piece][target_square]; // add piece to target square
-        // if move is capture the capture piece removes the hash it gave
-        // for en passant the hash key is updated in double push if statement
-        // if ene passant happens remove the en passant hash in en passant if statement
-        // for castiling unhash the castling right then hash it again (in the castling right update)
-        // for promotion remove pawn from target square and add promoted piece to target square (done in promotion if statement)
-
         // DEBUGGING HASH KEY
-        //uint64_t current_hash_key = generate_board_hash_key(board, hash_keys);
-        //if(hash_keys->board_hash_key != current_hash_key) {
-        //    printf("Make move\n");
-        //    print_move(move);
-        //    print_board(board);
-        //    printf("Board hash key: %" PRIu64 "\n", hash_keys->board_hash_key);
-        //    printf("Current hash key: %" PRIu64 "\n", current_hash_key);
-        //    getchar();
-        //}
+        // uint64_t current_hash_key = generate_board_hash_key(board, hash_keys);
+        // if(hash_keys->board_hash_key != current_hash_key) {
+        //     printf("Make move\n");
+        //     print_move(move);
+        //     print_board(board);
+        //     printf("Board hash key: %" PRIu64 "\n", hash_keys->board_hash_key);
+        //     printf("Current hash key: %" PRIu64 "\n", current_hash_key);
+        //     getchar();
+        // }
 
         return 1;
         

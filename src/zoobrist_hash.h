@@ -28,6 +28,7 @@ zoobrist_hash_keys* create_zoobrist_hash_keys();
 void init_zoobrist_random_keys(zoobrist_hash_keys* hash_data);
 
 uint64_t generate_board_hash_key(Board* board, zoobrist_hash_keys* hash_data);
+void init_board_hash_key(Board* board, zoobrist_hash_keys* hash_data);
 
 void print_hash_key(Board* board, zoobrist_hash_keys* hash_data);
 
