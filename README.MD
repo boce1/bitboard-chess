@@ -96,6 +96,13 @@ make linux_debug
 
 Note: The ```linux_release``` and ```linux_debug``` will work for all OSes if the ```gcc``` compiler is installed.
 
+## Name of the engine
+This bitboard chess engine is named after the statesman Lucius Quinctius Cincinnatus in early Roman Republic (5th BC). When Rome was threatened by the Aequi, the Senate appointed him dictator, an emergency office with supreme authority. Cincinnatus raised a citizen army, defeated the Aequi in just over two weeks, and, instead of clinging to power, resigned his dictatorship and returned to his farm. Cincinnatus became a symbol of Roman ideals — duty, service, and humility. Later generations admired him as the man who chose the plow over permanent power.
+
+Under certain conditions, the idea of a dictator can sound appealing, like when a democracy isn’t functioning as it should due to corruption or political polarization. People may believe the solution is a "benevolent dictator"— a leader who only uses their absolute power for the common good. But can such a leader actually exist in today’s world?
+
+TED-Ed video essay: "Has there ever been a good dictator?" - Stephanie Honchell Smith (https://www.youtube.com/watch?v=kkZ7B-Fv-ck&t=11s)
+
 # Bitboards
 Bitboards (also called bitmaps) are unsigned 64-bit integers. They are used to represent the state of the board. This method offers great computational speed because bitboard can be manipulated with binary operation. Modern computers are 64-bit arhitectures wich allows ussability of 64 bit registers. Binary operations with 64bit registers are much faster than the standard 2d representation of the board.
 
