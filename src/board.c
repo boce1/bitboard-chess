@@ -22,10 +22,10 @@ void init_board(Board* board) {
 
 Board* create_board() {
     Board* board = (Board*)malloc(sizeof(Board));
-    if (!board) {
-        fprintf(stderr, "Memory allocation failed for Board\n");
-        exit(EXIT_FAILURE);
-    }
+    // if (!board) {
+    //     fprintf(stderr, "Memory allocation failed for Board\n");
+    //     exit(EXIT_FAILURE);
+    // }
     
     return board;
 }

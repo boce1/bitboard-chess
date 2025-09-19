@@ -2,10 +2,10 @@
 
 time_controls* create_time_controls() {
     time_controls* time_info = (time_controls*)malloc(sizeof(time_controls));
-    if(!time_info) {
-        fprintf(stderr, "Memory allocation failed for time contols.\n");
-        exit(EXIT_FAILURE);
-    }
+    // if(!time_info) {
+    //     fprintf(stderr, "Memory allocation failed for time contols.\n");
+    //     exit(EXIT_FAILURE);
+    // }
 
     return time_info;
 }

@@ -78,21 +78,24 @@ void print_bitboard(uint64_t bitboard) {
 
 leaper_moves_masks* create_leaper_moves_masks() {
     leaper_moves_masks* masks = malloc(sizeof(leaper_moves_masks));
-    if (!masks) {
-        fprintf(stderr, "Memory allocation failed for leaper_moves_masks\n");
-        exit(EXIT_FAILURE);
-    }
-    int i, j;
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 64; j++) {
-            masks->pawn_attacks[i][j] = 0ULL;
+    // if (!masks) {
+    //     fprintf(stderr, "Memory allocation failed for leaper_moves_masks\n");
+    //     exit(EXIT_FAILURE);
+    // }
+    if(masks) {
+        int i, j;
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 64; j++) {
+                masks->pawn_attacks[i][j] = 0ULL;
+            }
+        }
+
+        for (i = 0; i < 64; i++) {
+            masks->king[i] = 0ULL;
+            masks->knight[i] = 0ULL;
         }
     }
-
-    for (i = 0; i < 64; i++) {
-        masks->king[i] = 0ULL;
-        masks->knight[i] = 0ULL;
-    }
+    
     
     return masks;
 }   
@@ -237,22 +240,25 @@ uint64_t get_occupancy_permutation(int index, int bits, uint64_t mask) { // for 
 
 slider_moves_masks* create_slider_moves_masks() {
     slider_moves_masks* masks = malloc(sizeof(slider_moves_masks));
-    if (!masks) {
-        fprintf(stderr, "Memory allocation failed for slider_moves_masks\n");
-        exit(EXIT_FAILURE);
-    }
-    int square, permutation;
-    for (square = 0; square < 64; square++) {
-        for (permutation = 0; permutation < 4096; permutation++) {
-            masks->rook[square][permutation] = 0ULL;
+    // if (!masks) {
+    //     fprintf(stderr, "Memory allocation failed for slider_moves_masks\n");
+    //     exit(EXIT_FAILURE);
+    // }
+    if(masks) {
+        int square, permutation;
+        for (square = 0; square < 64; square++) {
+            for (permutation = 0; permutation < 4096; permutation++) {
+                masks->rook[square][permutation] = 0ULL;
+            }
+        
+            for (permutation = 0; permutation < 512; permutation++) {
+                masks->bishop[square][permutation] = 0ULL;
+            }
+            masks->bishop_occupancy_rays[square] = 0ULL;
+            masks->rook_occupancy_rays[square] = 0ULL; 
         }
-
-        for (permutation = 0; permutation < 512; permutation++) {
-            masks->bishop[square][permutation] = 0ULL;
-        }
-        masks->bishop_occupancy_rays[square] = 0ULL;
-        masks->rook_occupancy_rays[square] = 0ULL; 
     }
+    
     
     return masks;
 }

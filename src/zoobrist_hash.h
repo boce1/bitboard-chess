@@ -9,6 +9,10 @@
 #include "board.h"
 #include "bitboard.h"
 
+#define hashf_exact 0 // hash flag for exact score after evaluation
+#define hashf_alpha 1 // the score is lower than alpha
+#define hashf_beta 2 // the score is higher than beta
+
 typedef struct {
     uint64_t piece_keys[12][64]; // 12 pieces, 64 squares
     uint64_t en_passant_keys[64]; // 8 possible en passant files (a-h)
@@ -17,6 +21,15 @@ typedef struct {
 
     uint64_t board_hash_key; // current board hash key, it is not random, represents id of the current position
 } zoobrist_hash_keys;
+
+
+typedef struct {
+    uint64_t key;
+    int depth;
+    int flags;
+    int value;
+    int best;
+} hash_node;
 
 #define copy_board_hash_key(hash_keys) \
     uint64_t board_hash_key_copy = (hash_keys)->board_hash_key; \

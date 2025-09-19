@@ -2,10 +2,10 @@
 
 zoobrist_hash_keys* create_zoobrist_hash_keys() {
     zoobrist_hash_keys* hash_data = (zoobrist_hash_keys*)malloc(sizeof(zoobrist_hash_keys));
-    if (!hash_data) {
-        fprintf(stderr, "Memory allocation failed for zoobrist_hash_keys\n");
-        exit(EXIT_FAILURE);
-    }
+    // if (!hash_data) {
+    //     fprintf(stderr, "Memory allocation failed for zoobrist_hash_keys\n");
+    //     exit(EXIT_FAILURE);
+    // }
     return hash_data;
 }
 

@@ -8,27 +8,21 @@
 #include "time_control.h"
 #include "zoobrist_hash.h"
 #include "perft.h"
+#include "memory_man.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 int main() {
-    leaper_moves_masks* leaper_masks = create_leaper_moves_masks(); // pawn, knight, king masks
-    slider_moves_masks* slider_masks = create_slider_moves_masks(); // rook, bishop, queen masks
-    init_leaper_moves_masks(leaper_masks);
-    init_slider_moves_masks(slider_masks);
+    leaper_moves_masks* leaper_masks = NULL;
+    slider_moves_masks* slider_masks = NULL;
+    Board* board = NULL;
+    search_heuristics* search_data = NULL;
+    time_controls* time_info = NULL;   
+    zoobrist_hash_keys* hash_data = NULL;
 
-    Board* board = create_board();;
-    init_board(board);
-
-    search_heuristics* search_data = create_search_heuristics();
-    init_search_heuristics(search_data);
-
-    time_controls* time_info = create_time_controls();
-    init_time_controls(time_info); 
-
-    zoobrist_hash_keys* hash_data = create_zoobrist_hash_keys ();
-    init_zoobrist_random_keys(hash_data);
+    create_data_structures(&leaper_masks, &slider_masks, &board, &search_data, &time_info, &hash_data);
+    init_data_structures(leaper_masks, slider_masks, board, search_data, time_info, hash_data);
 
     int debug = 0; // set to 0 to run UCI loop
     if(debug) {
@@ -59,23 +53,6 @@ int main() {
         uci_loop(board, leaper_masks, slider_masks, search_data, time_info, hash_data);
     }
     
-    if(board != NULL) {
-        free(board); 
-    }
-    if(leaper_masks != NULL) {
-        free(leaper_masks);  
-    }
-    if(slider_masks != NULL) {
-        free(slider_masks);
-    }
-    if(search_data != NULL) {
-        free(search_data);
-    }
-    if(time_info != NULL) {
-        free(time_info);
-    }
-    if(hash_data != NULL) {
-        free(hash_data);
-    }
+    free_data_structures(leaper_masks, slider_masks, board, search_data, time_info, hash_data);
     return 0;
 }

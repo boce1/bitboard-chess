@@ -103,10 +103,10 @@ int const mvv_lva[12][12] = {
 
 search_heuristics* create_search_heuristics() {
     search_heuristics* search_data = (search_heuristics*)malloc(sizeof(search_heuristics));
-    if(!search_data) {
-        fprintf(stderr, "Memory allocation failed for Search Heueristics\n");
-        exit(EXIT_FAILURE);
-    }
+    // if(!search_data) {
+    //     fprintf(stderr, "Memory allocation failed for Search Heueristics\n");
+    //     exit(EXIT_FAILURE);
+    // }
     return search_data;
 }
 
